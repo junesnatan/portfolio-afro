@@ -17,8 +17,8 @@ export const IDENTITY_DATA = {
   name: "Junes AGASSOUNON",
   title: "DÉVELOPPEUR WEB & GRAPHISTE",
   location: "Paris / Cotonou / Remote",
-  bio: "Développeur Web et Graphiste, je conçois des plateformes numériques vivantes où la solidité du code rencontre la puissance expressive de l'image. Pas de détours : chaque typographie, chaque contraste et chaque ligne d'algorithme sont taillés sur mesure avec l'exigence d'un artisan du Sahel.",
-  philosophy: "Le graphisme donne une âme, le web lui donne le mouvement. Dans mon atelier, l'imaginaire s'enracine dans la clarté technique pour créer des œuvres mémorables qui durent.",
+  bio: "Développeur Web et Graphiste passionné, je conçois des applications web modernes, rapides et intuitives, avec un design visuel soigné qui marque les esprits. Du front-end interactif au back-end robuste, chaque projet est pensé pour créer un vrai impact pour vos utilisateurs et votre activité.",
+  philosophy: "Le design capte l'attention, le code concrétise l'expérience. J'aime allier créativité visuelle et rigueur technique pour livrer des solutions propres, performantes et faciles à faire grandir.",
   stats: [
     { label: "Années d'expérience", value: "5+" },
     { label: "Projets livrés", value: "35+" },

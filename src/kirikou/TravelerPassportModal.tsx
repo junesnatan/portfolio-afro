@@ -104,11 +104,11 @@ export const TravelerPassportModal: React.FC<TravelerPassportModalProps> = ({
     ctx.textAlign = 'center';
     ctx.fillStyle = '#8C4A28';
     ctx.font = 'bold 11px monospace';
-    ctx.fillText('✦ ROYAUME DU CODE & EXPÉDITION DU SAHEL ✦', width / 2, 54);
+    ctx.fillText('✦ CONCEPTION WEB MODERNE & IDENTITÉ VISUELLE ✦', width / 2, 54);
 
     ctx.fillStyle = '#2B201A';
     ctx.font = '900 24px system-ui, -apple-system, sans-serif';
-    ctx.fillText('PASSEPORT DU VOYAGEUR INITIÉ', width / 2, 84);
+    ctx.fillText('PASSEPORT OFFICIEL DU VISITEUR', width / 2, 84);
 
     ctx.fillStyle = '#D95D39';
     ctx.font = 'bold 12px monospace';
@@ -309,7 +309,7 @@ export const TravelerPassportModal: React.FC<TravelerPassportModalProps> = ({
     ctx.fillStyle = '#3D2619';
     ctx.font = 'italic 13px system-ui, serif';
     ctx.fillText(
-      '« Qui marche dans la savane avec curiosité repart enrichi de sagesse et de code durable. »',
+      '« Une interface claire, un code propre et un échange transparent du début à la fin. »',
       width / 2,
       400
     );
@@ -317,7 +317,7 @@ export const TravelerPassportModal: React.FC<TravelerPassportModalProps> = ({
     ctx.fillStyle = '#D95D39';
     ctx.font = 'bold 11px monospace';
     ctx.fillText(
-      'Parole de Junes AGASSOUNON · Développeur Web & Graphiste',
+      'Junes AGASSOUNON · Développeur Web & Graphiste',
       width / 2,
       422
     );

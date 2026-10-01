@@ -32,7 +32,6 @@ import {
   Mail,
   ChevronRight,
   ChevronLeft,
-  ChevronDown,
   Sparkles,
   Send,
   CheckCircle2,
@@ -314,12 +313,16 @@ export const KirikouWorld: React.FC = () => {
       setIsWalking(true);
       isWalkingRef.current = true;
 
-      // 3. Move Kirikou visibly across the landscape along with the camera
+      // 3. Move Kirikou naturally across the ground with realistic step progression
+      const moveAmount = delta * 0.75;
+      const unclampedX = characterXRef.current + moveAmount;
       const screenWidth = window.innerWidth;
-      const anchorRatio = screenWidth < 640 ? 0.28 : 0.35;
+      // Soft boundary: keep Kirikou comfortably visible within the savanna viewport
+      const minVisibleX = container.scrollLeft + 60;
+      const maxVisibleX = container.scrollLeft + screenWidth - 110;
       const newKirikouX = Math.max(
         80,
-        Math.min(totalWorldWidth - 250, container.scrollLeft + screenWidth * anchorRatio)
+        Math.min(totalWorldWidth - 250, Math.max(minVisibleX, Math.min(maxVisibleX, unclampedX)))
       );
       characterXRef.current = newKirikouX;
       setCharacterX(newKirikouX);
@@ -347,9 +350,9 @@ export const KirikouWorld: React.FC = () => {
         return;
       }
 
-      // Check if mouse is hovering an element that has vertical overflow (e.g. scrollable card description)
+      // Check if mouse is hovering an element that has vertical overflow or horizontal overflow
       const target = e.target as HTMLElement | null;
-      const scrollableParent = target?.closest('.overflow-y-auto, textarea') as HTMLElement | null;
+      const scrollableParent = target?.closest('.overflow-y-auto, .overflow-x-auto, textarea') as HTMLElement | null;
       if (scrollableParent && scrollableParent.scrollHeight > scrollableParent.clientHeight) {
         const isAtTop = scrollableParent.scrollTop <= 0 && e.deltaY < 0;
         const isAtBottom =
@@ -390,16 +393,14 @@ export const KirikouWorld: React.FC = () => {
       const diffX = touchStartRef.current.x - touch.clientX;
       const diffY = touchStartRef.current.y - touch.clientY;
 
-      // Check if touch is inside an open scrollable card with vertical space remaining
+      // Check if touch is inside an open scrollable card or tabs with space remaining
       const target = e.target as HTMLElement | null;
-      const scrollableParent = target?.closest('.overflow-y-auto, textarea') as HTMLElement | null;
-      if (scrollableParent && scrollableParent.scrollHeight > scrollableParent.clientHeight) {
-        const isAtTop = scrollableParent.scrollTop <= 0 && diffY < 0;
-        const isAtBottom =
-          scrollableParent.scrollTop + scrollableParent.clientHeight >= scrollableParent.scrollHeight - 2 &&
-          diffY > 0;
-        if (!isAtTop && !isAtBottom) {
-          return; // Let card internal scroll proceed
+      const scrollableParent = target?.closest('.overflow-y-auto, .overflow-x-auto, textarea') as HTMLElement | null;
+      if (scrollableParent) {
+        const hasVerticalScroll = scrollableParent.scrollHeight > scrollableParent.clientHeight;
+        const hasHorizontalScroll = scrollableParent.scrollWidth > scrollableParent.clientWidth;
+        if (hasVerticalScroll || hasHorizontalScroll) {
+          return; // Let internal card/tab scroll proceed
         }
       }
 
@@ -524,9 +525,9 @@ export const KirikouWorld: React.FC = () => {
   const handleBaobabFruitClick = () => {
     playSuccess();
     const quotes = [
-      '« Le secret d’un code durable, c’est comme les racines du baobab : profondément ancré et invisible à la surface. »',
-      '« Un bon design ne crie pas, il raconte une histoire avec la simplicité du geste artisanal. »',
-      '« 100% de rigueur TypeScript, 0% de compromis sur la créativité visuelle. »',
+      '« Un code durable repose sur des bases solides : architecture propre, typage strict et maintenance facilitée. »',
+      '« Une interface réussie allie toujours un code rigoureux et une expérience utilisateur intuitive et vivante. »',
+      '« 100% de rigueur TypeScript, 0% de compromis sur la créativité et le design. »',
     ];
     setBaobabWisdom(quotes[Math.floor(Math.random() * quotes.length)]);
   };
@@ -687,23 +688,22 @@ export const KirikouWorld: React.FC = () => {
             <span>VISITE 60S</span>
           </button>
 
-          {/* Dossier CV Express Button */}
-          <button
-            onClick={() => {
-              playInteract();
-              setIsDossierOpen(true);
-            }}
+          {/* Direct PDF CV Link */}
+          <a
+            href="/assets/cv-junes-agassounon.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => playInteract()}
             className={`flex items-center gap-1 sm:gap-1.5 px-2.5 py-1.5 sm:px-3.5 sm:py-2 border font-mono font-bold text-xs rounded-xl sm:rounded-2xl shadow-sm transition-all active:scale-95 whitespace-nowrap shrink-0 ${
               atmosphere === 'night'
                 ? 'bg-[#23203C] border-white/20 text-[#FAF0CA] hover:bg-[#2F2B4E]'
                 : 'bg-[#FDFBF7] border-[#D95D39]/30 text-[#D95D39] hover:bg-[#F3EDE2]'
             }`}
-            title="Dossier CV Express (Profil &amp; Compétences)"
+            title="Consulter et télécharger le CV au format PDF"
           >
             <FileText className="w-3.5 h-3.5" />
-            <span className="sm:hidden text-[11px]">CV</span>
-            <span className="hidden sm:inline">DOSSIER EXPRESS</span>
-          </button>
+            <span className="text-[11px] sm:text-xs">CV (PDF)</span>
+          </a>
 
           {/* Direct Contact Button */}
           <button
@@ -880,12 +880,12 @@ export const KirikouWorld: React.FC = () => {
             <BogolanFrieze color="#D95D39" className="mb-2" />
             <div className="relative inline-block mb-1">
               <span className="font-script text-[22px] sm:text-[26px] md:text-[28px] font-bold text-[#D95D39] quill-reveal leading-none">
-                ✦ Chapitre 1 · Le Village des Origines
+                ✦ Chapitre 1 · Présentation &amp; Savoir-Faire
               </span>
               <div className="h-0.5 w-full bg-[#E9C46A] quill-underline rounded-full mt-0.5" />
             </div>
             <h3 className="font-title text-xl sm:text-2xl md:text-[28px] font-bold leading-tight animate-titleBreathe mt-1">
-              {IDENTITY_DATA.name} — L'Artisan du Web
+              {IDENTITY_DATA.name} — Développeur Web &amp; Graphiste
             </h3>
             <p className="font-body text-xs md:text-sm mt-2 leading-relaxed font-medium opacity-95">
               « {IDENTITY_DATA.bio} »
@@ -947,7 +947,7 @@ export const KirikouWorld: React.FC = () => {
           />
 
           {/* Projects Station Container (Guaranteed space: NEVER obscured by navbar) */}
-          <div className={`absolute bottom-[145px] left-[1050px] w-[320px] sm:w-[580px] md:w-[700px] p-4 sm:p-5 border-2 rounded-3xl shadow-xl max-h-[calc(100%-160px)] overflow-y-auto ${
+          <div className={`absolute bottom-[145px] left-[1050px] w-[580px] sm:w-[640px] md:w-[700px] p-4 sm:p-5 border-2 rounded-3xl shadow-xl max-h-[calc(100%-160px)] overflow-y-auto ${
             atmosphere === 'night'
               ? 'bg-[#1E1C2E] border-white/20 text-white'
               : 'bg-[#FDFBF7] border-[#D95D39]/30 text-[#2B201A]'
@@ -957,21 +957,21 @@ export const KirikouWorld: React.FC = () => {
               <div>
                 <div className="relative inline-block mb-1">
                   <span className="font-script text-[22px] sm:text-[26px] md:text-[28px] font-bold text-[#D95D39] quill-reveal leading-none">
-                    ✦ Chapitre 2 · Les Créations
+                    ✦ Chapitre 2 · Projets &amp; Réalisations
                   </span>
                   <div className="h-0.5 w-full bg-[#E9C46A] quill-underline rounded-full mt-0.5" />
                 </div>
                 <h3 className="font-title text-xl sm:text-2xl md:text-[28px] font-bold leading-tight animate-titleBreathe">
-                  L'Allée des Créations
+                  Projets &amp; Réalisations Web
                 </h3>
               </div>
               <span className="text-[11px] sm:text-xs font-body font-semibold opacity-75 hidden xs:inline">
-                Cliquez pour ouvrir un conte
+                Cliquez pour voir les détails
               </span>
             </div>
 
-            {/* Illustrated Project Cards Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+            {/* Illustrated Project Cards Grid - 2 columns side by side */}
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
               {projects.map((proj) => (
                 <div
                   key={proj.id}
@@ -979,7 +979,7 @@ export const KirikouWorld: React.FC = () => {
                     playInteract();
                     setSelectedProject(proj);
                   }}
-                  className={`p-3.5 border rounded-2xl cursor-pointer transition-all hover:scale-[1.02] shadow-sm flex flex-col justify-between ${
+                  className={`p-3 sm:p-3.5 border rounded-2xl cursor-pointer transition-all hover:scale-[1.02] shadow-sm flex flex-col justify-between ${
                     atmosphere === 'night'
                       ? 'bg-[#29263E] border-white/10 hover:border-[#E9C46A]'
                       : 'bg-[#FAF7F2] border-[#D95D39]/20 hover:border-[#D95D39]'
@@ -992,16 +992,16 @@ export const KirikouWorld: React.FC = () => {
                       </span>
                       <span className="text-[10px] font-mono opacity-70">{proj.year}</span>
                     </div>
-                    <h4 className="font-extrabold text-sm mb-1">
+                    <h4 className="font-extrabold text-xs sm:text-sm mb-1 leading-snug">
                       {proj.title}
                     </h4>
-                    <p className="text-[11px] line-clamp-2 font-medium opacity-85">
+                    <p className="text-[10px] sm:text-[11px] line-clamp-2 font-medium opacity-85">
                       {proj.tagline}
                     </p>
                   </div>
                   <div className="flex items-center justify-between pt-2 mt-2 border-t border-[#D95D39]/15">
                     <span className="text-[10px] font-mono font-bold text-[#D95D39] flex items-center gap-1">
-                      Lire le conte &rarr;
+                      Détails du projet &rarr;
                     </span>
                     <span className="text-[10px] font-mono text-[#2A9D8F] font-bold">
                       {proj.role.split(' ')[0]}
@@ -1042,7 +1042,7 @@ export const KirikouWorld: React.FC = () => {
           />
 
           {/* Baobab Skills Station Card (Guaranteed space: NEVER obscured by navbar) */}
-          <div className={`absolute bottom-[145px] left-[2250px] w-[320px] sm:w-[480px] md:w-[520px] p-4 sm:p-5 border-2 rounded-3xl shadow-xl max-h-[calc(100%-160px)] overflow-y-auto ${
+          <div className={`absolute bottom-[145px] left-[2250px] w-[480px] sm:w-[540px] md:w-[580px] p-4 sm:p-5 border-2 rounded-3xl shadow-xl max-h-[calc(100%-160px)] overflow-y-auto ${
             atmosphere === 'night'
               ? 'bg-[#1E1C2E] border-white/20 text-white'
               : 'bg-[#FDFBF7] border-[#D95D39]/30 text-[#2B201A]'
@@ -1052,12 +1052,12 @@ export const KirikouWorld: React.FC = () => {
               <div>
                 <div className="relative inline-block mb-1">
                   <span className="font-script text-[22px] sm:text-[26px] md:text-[28px] font-bold text-[#D95D39] quill-reveal leading-none">
-                    ✦ Chapitre 3 · L’Arbre des Savoirs
+                    ✦ Chapitre 3 · La Stack Technique
                   </span>
                   <div className="h-0.5 w-full bg-[#E9C46A] quill-underline rounded-full mt-0.5" />
                 </div>
                 <h3 className="font-title text-xl sm:text-2xl md:text-[28px] font-bold leading-tight animate-titleBreathe">
-                  Le Grand Baobab
+                  Compétences &amp; Outils Maîtrisés
                 </h3>
               </div>
               <Sparkles className="w-5 h-5 text-[#E9C46A]" />
@@ -1071,8 +1071,8 @@ export const KirikouWorld: React.FC = () => {
               </div>
             )}
 
-            {/* Skill Category Selector Pills */}
-            <div className="flex gap-1.5 mb-3 overflow-x-auto pb-1">
+            {/* Skill Category Selector Pills - Wrapped so all categories are fully visible without hidden horizontal scroll */}
+            <div className="flex flex-wrap gap-1.5 mb-3.5">
               {[
                 { id: 'frontend', label: 'Frontend & 3D', icon: Code },
                 { id: 'backend', label: 'Backend & Cloud', icon: Server },
@@ -1102,29 +1102,31 @@ export const KirikouWorld: React.FC = () => {
               })}
             </div>
 
-            {/* Skills List with Warm Progress Bars */}
-            <div className="space-y-2 max-h-[190px] overflow-y-auto pr-1">
+            {/* Skills List - 2 by 2 Grid on each line */}
+            <div className="grid grid-cols-2 gap-2 max-h-[250px] overflow-y-auto pr-1">
               {skills.filter((s) =>
                 selectedSkillCategory === 'frontend'
                   ? s.category === 'frontend' || s.category === 'creative_3d'
                   : s.category === selectedSkillCategory
               ).map((skill) => (
-                <div key={skill.id} className={`p-2.5 rounded-2xl border ${
+                <div key={skill.id} className={`p-2.5 rounded-2xl border flex flex-col justify-between ${
                   atmosphere === 'night'
                     ? 'bg-[#29263E] border-white/10'
                     : 'bg-[#FAF7F2] border-[#D95D39]/15'
                 }`}>
-                  <div className="flex justify-between items-center text-xs font-mono font-bold mb-1">
-                    <span>{skill.name}</span>
-                    <span className="text-[#D95D39] font-extrabold">{skill.level}%</span>
+                  <div>
+                    <div className="flex justify-between items-center text-xs font-mono font-bold mb-1">
+                      <span className="truncate mr-1">{skill.name}</span>
+                      <span className="text-[#D95D39] font-extrabold shrink-0">{skill.level}%</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-[#E8D5B5] rounded-full overflow-hidden mb-1.5">
+                      <div
+                        className="h-full bg-gradient-to-r from-[#D95D39] to-[#2A9D8F] rounded-full"
+                        style={{ width: `${skill.level}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="w-full h-2 bg-[#E8D5B5] rounded-full overflow-hidden mb-1">
-                    <div
-                      className="h-full bg-gradient-to-r from-[#D95D39] to-[#2A9D8F] rounded-full"
-                      style={{ width: `${skill.level}%` }}
-                    />
-                  </div>
-                  <p className="text-[10px] opacity-70">{skill.description}</p>
+                  <p className="text-[10px] opacity-75 line-clamp-2">{skill.description}</p>
                 </div>
               ))}
             </div>
@@ -1133,7 +1135,7 @@ export const KirikouWorld: React.FC = () => {
               onClick={() => goToChapter(3)}
               className="w-full mt-3.5 py-2.5 px-4 bg-gradient-to-r from-[#D95D39] to-[#E76F51] hover:from-[#E76F51] hover:to-[#E9C46A] text-white font-mono font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 active:scale-95 whitespace-nowrap"
             >
-              <span>REJOINDRE L'ARBRE À PALABRE</span>
+              <span>CONTINUER VERS LE CONTACT</span>
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
@@ -1172,12 +1174,12 @@ export const KirikouWorld: React.FC = () => {
               <div>
                 <div className="relative inline-block mb-1">
                   <span className="font-script text-[22px] sm:text-[26px] md:text-[28px] font-bold text-[#D95D39] quill-reveal leading-none">
-                    ✦ Chapitre 4 · L’Espace de Dialogue
+                    ✦ Chapitre 4 · Échange &amp; Disponibilité
                   </span>
                   <div className="h-0.5 w-full bg-[#E9C46A] quill-underline rounded-full mt-0.5" />
                 </div>
                 <h3 className="font-title text-xl sm:text-2xl md:text-[28px] font-bold leading-tight animate-titleBreathe">
-                  L’Arbre à Palabre
+                  L’Arbre à Palabre · Contact
                 </h3>
               </div>
               <Mail className="w-5 h-5 text-[#D95D39]" />
@@ -1278,7 +1280,7 @@ export const KirikouWorld: React.FC = () => {
                 onClick={() => goToChapter(4)}
                 className="w-full py-2.5 px-4 bg-gradient-to-r from-[#2A9D8F] to-[#238276] hover:opacity-95 text-white font-mono font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5 active:scale-95 whitespace-nowrap"
               >
-                <span>VERS L'ÉPILOGUE DU CONTE</span>
+                <span>VERS LA CONCLUSION &amp; PERSPECTIVES</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -1318,12 +1320,12 @@ export const KirikouWorld: React.FC = () => {
               <div>
                 <div className="relative inline-block mb-1">
                   <span className="font-script text-[22px] sm:text-[26px] md:text-[28px] font-bold text-[#2A9D8F] quill-reveal leading-none">
-                    ✦ Chapitre 5 · L’Épilogue du Conte
+                    ✦ Chapitre 5 · Conclusion &amp; Perspectives
                   </span>
                   <div className="h-0.5 w-full bg-[#E9C46A] quill-underline rounded-full mt-0.5" />
                 </div>
                 <h3 className="font-title text-xl sm:text-2xl md:text-[28px] font-bold leading-tight animate-titleBreathe flex items-center gap-1.5">
-                  <span>La Célébration Finale</span>
+                  <span>Perspectives &amp; Célébration</span>
                   <Sparkles className="w-5 h-5 text-[#E9C46A]" />
                 </h3>
               </div>
@@ -1335,14 +1337,14 @@ export const KirikouWorld: React.FC = () => {
             <div className="space-y-3 text-xs">
               <div className="p-3 bg-[#FAF7F2] rounded-2xl border border-[#D95D39]/15 text-[#3D2619] leading-relaxed">
                 <p className="font-medium">
-                  « Merci d’avoir partagé ce chemin à travers la savane. Comme dans les grands contes, chaque création est une transmission : allier la rigueur d'ingénierie logicielle la plus stricte à l'émotion d'un design artisanal et vivant. »
+                  « Merci d’avoir partagé ce chemin à travers la savane. Chaque création est une rencontre : allier la rigueur d'ingénierie logicielle la plus exigeante à une identité visuelle soignée, intuitive et au service de vos utilisateurs. »
                 </p>
                 <div className="mt-2 font-mono font-bold text-[11px] text-[#D95D39]">
                   — JUNES AGASSOUNON, Développeur Web &amp; Graphiste
                 </div>
               </div>
 
-              {/* Artisan Pillars Summary */}
+              {/* Pillars Summary */}
               <div className="grid grid-cols-2 gap-2 text-[11px] font-mono">
                 <div className="p-2.5 bg-white/60 border border-[#D95D39]/10 rounded-xl">
                   <div className="font-bold text-[#D95D39] flex items-center gap-1.5">
@@ -1354,7 +1356,7 @@ export const KirikouWorld: React.FC = () => {
                 <div className="p-2.5 bg-white/60 border border-[#2A9D8F]/20 rounded-xl">
                   <div className="font-bold text-[#2A9D8F] flex items-center gap-1.5">
                     <Palette className="w-3.5 h-3.5 shrink-0" />
-                    <span>Graphisme &amp; Création</span>
+                    <span>Graphisme &amp; UI</span>
                   </div>
                   <div className="text-[10px] text-gray-500 mt-0.5">Identités Visuelles, Vectoriel &amp; UI au Code</div>
                 </div>
@@ -1385,17 +1387,16 @@ export const KirikouWorld: React.FC = () => {
                 </button>
 
                 <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      playInteract();
-                      setIsDossierOpen(true);
-                    }}
+                  <a
+                    href="/assets/cv-junes-agassounon.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => playInteract()}
                     className="py-2 px-3 bg-[#FAF7F2] hover:bg-[#F3EDE2] border border-[#D95D39]/20 text-[#2B201A] font-mono font-bold text-[11px] rounded-xl transition-all flex items-center justify-center gap-1.5"
                   >
                     <FileText className="w-3 h-3 text-[#D95D39]" />
-                    <span>DOSSIER EXPRESS</span>
-                  </button>
+                    <span>CV (PDF)</span>
+                  </a>
 
                   <button
                     type="button"
@@ -1434,16 +1435,7 @@ export const KirikouWorld: React.FC = () => {
         </div>
       </div>
 
-      {/* Floating Scroll Down / Exploration Prompt (Fades out when Kirikou starts moving) */}
-      <div
-        className={`fixed bottom-14 sm:bottom-16 left-1/2 -translate-x-1/2 z-30 pointer-events-none transition-all duration-500 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/75 backdrop-blur-sm border border-[#E9C46A]/50 text-[#FAF0CA] text-[11px] sm:text-xs font-mono shadow-2xl ${
-          characterX > 250 ? 'opacity-0 translate-y-3 pointer-events-none' : 'opacity-100 animate-bounce'
-        }`}
-      >
-        <ChevronDown className="w-3.5 h-3.5 text-[#E9C46A] animate-pulse" />
-        <span>Scrollez vers le bas pour explorer</span>
-        <ChevronRight className="w-3.5 h-3.5 text-[#E9C46A]" />
-      </div>
+
 
       {/* ======================================================== */}
       {/* 3. SIMPLE BOTTOM STORYBOOK CHAPTER BAR                   */}
@@ -1562,13 +1554,13 @@ export const KirikouWorld: React.FC = () => {
               <Gem className="w-6 h-6 sm:w-8 sm:h-8" />
             </div>
             <h3 className="text-lg sm:text-2xl font-extrabold text-[#D95D39] mb-1">
-              Sagesse de l'Artisan Débloquée !
+              Exploration Complète Accomplie !
             </h3>
             <p className="text-[10px] sm:text-xs font-mono font-bold text-[#2A9D8F] mb-2.5 sm:mb-3 uppercase tracking-wider">
-              Quête des 4 Cauris Sacrés accomplie (4/4)
+              Quête des 4 Cauris Découverts (4/4)
             </p>
             <div className="text-xs sm:text-sm font-medium leading-relaxed bg-[#FAF7F2] p-3 sm:p-4 rounded-2xl border border-[#D95D39]/20 mb-4 sm:mb-5 text-[#3D2619]">
-              « Le travail soigné se voit dans les détails invisibles à ceux qui se pressent. En explorant ce monde jusqu'au bout, vous avez démontré la curiosité d'un véritable partenaire créatif. »
+              « Le souci du détail fait toute la différence entre un bon projet et une expérience remarquable. Merci pour votre visite et au plaisir d'échanger sur vos futurs projets ! »
               <div className="mt-2 font-bold font-mono text-[11px] sm:text-xs text-[#D95D39]">
                 — JUNES AGASSOUNON, Développeur Web &amp; Graphiste
               </div>
