@@ -25,7 +25,10 @@ import {
   Save,
   Search,
   Sparkles,
+  Wand2,
+  Check,
 } from 'lucide-react';
+import { extractProjectFromText } from '@/utils/projectExtractor';
 
 export const AdminDashboardModal: React.FC = () => {
   const isOpen = useUIStore((s) => s.isAdminOpen);
@@ -80,6 +83,12 @@ export const AdminDashboardModal: React.FC = () => {
     githubUrl: '',
   });
 
+  // Smart Auto-Extraction States
+  const [autoExtractText, setAutoExtractText] = useState('');
+  const [extractSuccessMessage, setExtractSuccessMessage] = useState<string | null>(null);
+  const [quickExtractText, setQuickExtractText] = useState('');
+  const [isQuickExtractOpen, setIsQuickExtractOpen] = useState(true);
+
   // Skill ADD / EDIT Modal State
   const [isSkillFormOpen, setIsSkillFormOpen] = useState(false);
   const [skillFormMode, setSkillFormMode] = useState<'create' | 'edit'>('create');
@@ -119,11 +128,81 @@ export const AdminDashboardModal: React.FC = () => {
     closeAdminModal();
   };
 
-  // --- PROJECT CRUD HANDLERS ---
+  // --- PROJECT CRUD & SMART EXTRACTION HANDLERS ---
+  const handleAutoExtract = (customText?: string) => {
+    const text = (customText !== undefined ? customText : autoExtractText).trim();
+    if (!text) return;
+    playSuccess();
+    const extracted = extractProjectFromText(text);
+
+    setProjectFormData({
+      title: extracted.title,
+      tagline: extracted.tagline,
+      category: extracted.category,
+      role: extracted.role,
+      year: extracted.year,
+      featured: true,
+      description: extracted.description,
+      technologies: extracted.technologies.join(', '),
+      features: extracted.features.join('\n'),
+      metric1Label: extracted.metrics[0]?.label || '',
+      metric1Value: extracted.metrics[0]?.value || '',
+      metric2Label: extracted.metrics[1]?.label || '',
+      metric2Value: extracted.metrics[1]?.value || '',
+      liveUrl: extracted.suggestedLinks[0]?.url || '',
+      githubUrl: extracted.suggestedLinks[1]?.url || '',
+    });
+
+    setExtractSuccessMessage('✓ Caractéristiques extraites avec succès !');
+    setTimeout(() => setExtractSuccessMessage(null), 4000);
+  };
+
+  const handleQuickAddProjectFromText = () => {
+    if (!quickExtractText.trim()) return;
+    playSuccess();
+    const extracted = extractProjectFromText(quickExtractText);
+    const newProject: ProjectData = {
+      id: (extracted.slug || 'proj') + '-' + Date.now().toString().slice(-4),
+      slug: extracted.slug || `proj-${Date.now()}`,
+      title: extracted.title,
+      tagline: extracted.tagline,
+      category: extracted.category,
+      role: extracted.role,
+      year: extracted.year,
+      featured: true,
+      description: extracted.description,
+      features: extracted.features,
+      technologies: extracted.technologies,
+      metrics: extracted.metrics,
+      links: extracted.suggestedLinks.map((l) => ({
+        label: l.label,
+        url: l.url,
+        type: l.type,
+      })),
+      thumbnail: `/assets/projects/${extracted.category === 'creative_dev' ? 'lumina' : extracted.category === 'mobile' ? 'velocity' : 'agripulse'}.webp`,
+      galleryImages: [],
+      zonePlacement: {
+        zone: 'projectdistrict',
+        position: [0, 0, 0],
+      },
+    };
+    addProject(newProject);
+    setQuickExtractText('');
+    showNotification('PROJET EXTRAIT & AJOUTÉ', `Le projet "${newProject.title}" a été généré et ajouté.`);
+  };
+
+  const handleOpenCreateWithQuickText = () => {
+    if (!quickExtractText.trim()) return;
+    handleOpenCreateProject();
+    handleAutoExtract(quickExtractText);
+  };
+
   const handleOpenCreateProject = () => {
     playInteract();
     setProjectFormMode('create');
     setEditingProjectId(null);
+    setAutoExtractText('');
+    setExtractSuccessMessage(null);
     setProjectFormData({
       title: '',
       tagline: '',
@@ -595,6 +674,69 @@ export const AdminDashboardModal: React.FC = () => {
               {/* TAB 2: PROJECTS CRUD */}
               {activeTab === 'projects' && (
                 <div className="space-y-4">
+                  {/* AI Quick Extractor Card */}
+                  <div className="bg-gradient-to-r from-[#FAF0CA]/70 via-[#FDFBF7] to-[#FAF7F2] p-4 rounded-2xl border-2 border-dashed border-[#E9C46A] shadow-sm space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-[#D95D39] text-white flex items-center justify-center shadow-sm">
+                          <Wand2 className="w-4 h-4 animate-pulse" />
+                        </div>
+                        <div>
+                          <h4 className="font-extrabold text-xs text-[#8C4A28] uppercase tracking-wide">
+                            Assistant IA : Ajout de Projet par Description Brute
+                          </h4>
+                          <p className="text-[10px] text-[#7A583A]">
+                            Collez simplement le texte descriptif de votre projet réel. L'IA extrait automatiquement le titre, la catégorie, le rôle, l'année, les technologies, les métriques et les fonctionnalités.
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setIsQuickExtractOpen(!isQuickExtractOpen)}
+                        className="text-[11px] font-mono text-[#D95D39] font-bold px-2 py-1 rounded-lg hover:bg-black/5"
+                      >
+                        {isQuickExtractOpen ? 'Réduire ▲' : 'Déplier ▼'}
+                      </button>
+                    </div>
+
+                    {isQuickExtractOpen && (
+                      <div className="space-y-2.5 pt-1">
+                        <textarea
+                          rows={3}
+                          placeholder="Exemple : J'ai conçu en 2024 la plateforme KoraPay avec React Native, Node.js et PostgreSQL. En tant que Lead Full-Stack, j'ai optimisé les flux financiers pour réduire le temps de transaction sous 45ms avec plus de 15 000 utilisateurs actifs. Fonctionnalités : paiement instantané QR code, historique temps réel et sécurisation biométrique..."
+                          value={quickExtractText}
+                          onChange={(e) => setQuickExtractText(e.target.value)}
+                          className="w-full p-3 bg-white border border-[#E9C46A] rounded-xl text-xs font-mono focus:outline-none focus:border-[#D95D39] resize-none shadow-inner"
+                        />
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={handleQuickAddProjectFromText}
+                              disabled={!quickExtractText.trim()}
+                              className="px-4 py-2 bg-gradient-to-r from-[#D95D39] to-[#E76F51] hover:from-[#E76F51] hover:to-[#E9C46A] disabled:opacity-40 text-white font-mono font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 active:scale-95"
+                            >
+                              <Wand2 className="w-3.5 h-3.5" />
+                              <span>✨ EXTRAIRE &amp; AJOUTER DIRECTEMENT</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={handleOpenCreateWithQuickText}
+                              disabled={!quickExtractText.trim()}
+                              className="px-3.5 py-2 bg-white hover:bg-[#F3EDE2] border border-[#D95D39]/30 text-[#D95D39] font-mono font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 active:scale-95"
+                            >
+                              <Sparkles className="w-3.5 h-3.5" />
+                              <span>Pré-remplir le Formulaire</span>
+                            </button>
+                          </div>
+                          <span className="text-[10px] font-mono text-[#7A583A]">
+                            Analysera automatiquement la stack, le rôle, l'année et les métriques
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   {/* Top Bar: Search, Category Filter, and Add Button */}
                   <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between bg-white p-3 rounded-2xl border border-[#D95D39]/15 shadow-sm">
                     <div className="flex items-center gap-2 flex-1">
@@ -968,6 +1110,38 @@ export const AdminDashboardModal: React.FC = () => {
               </div>
 
               <form onSubmit={handleSaveProject} className="flex-1 overflow-y-auto p-6 space-y-4 text-xs font-mono">
+                {/* AUTO-EXTRACTOR MAGIC BOX IN FORM */}
+                <div className="p-3.5 bg-gradient-to-r from-[#FAF0CA]/60 via-[#FDFBF7] to-[#FAF7F2] border-2 border-dashed border-[#E9C46A] rounded-2xl space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 font-bold text-[#8C4A28] text-xs">
+                      <Wand2 className="w-3.5 h-3.5 text-[#D95D39] animate-pulse" />
+                      <span>Remplissage automatique par l'IA depuis un texte</span>
+                    </div>
+                    {extractSuccessMessage && (
+                      <span className="text-[11px] font-bold text-[#2A9D8F] flex items-center gap-1 animate-fadeIn">
+                        <Check className="w-3.5 h-3.5" />
+                        <span>{extractSuccessMessage}</span>
+                      </span>
+                    )}
+                  </div>
+                  <textarea
+                    rows={2}
+                    placeholder="Collez ici votre texte descriptif brut pour remplir automatiquement tous les champs ci-dessous..."
+                    value={autoExtractText}
+                    onChange={(e) => setAutoExtractText(e.target.value)}
+                    className="w-full p-2 bg-white border border-[#E9C46A] rounded-xl text-xs font-mono focus:outline-none focus:border-[#D95D39] resize-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleAutoExtract()}
+                    disabled={!autoExtractText.trim()}
+                    className="px-3 py-1.5 bg-[#D95D39] hover:bg-[#E76F51] disabled:opacity-40 text-white font-bold text-[11px] rounded-lg shadow-sm transition-all flex items-center gap-1 active:scale-95"
+                  >
+                    <Wand2 className="w-3 h-3" />
+                    <span>✨ Extraire et remplir tous les champs</span>
+                  </button>
+                </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block font-bold mb-1">Titre du Projet *</label>

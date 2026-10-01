@@ -17,6 +17,7 @@ import {
 } from './KirikouScenery';
 import { KirikouProjectModal } from './KirikouProjectModal';
 import { KirikouDossierModal } from './KirikouDossierModal';
+import { CurriculumVitaeModal } from './CurriculumVitaeModal';
 import { CalaoTourGuide } from './CalaoTourGuide';
 import { TravelerPassportModal } from './TravelerPassportModal';
 import { AdminDashboardModal } from '@/admin/AdminDashboardModal';
@@ -66,6 +67,7 @@ export const KirikouWorld: React.FC = () => {
 
   const [selectedProject, setSelectedProject] = useState<ProjectData | null>(null);
   const [isDossierOpen, setIsDossierOpen] = useState<boolean>(false);
+  const [isCvOpen, setIsCvOpen] = useState<boolean>(false);
   const [isCalaoTourOpen, setIsCalaoTourOpen] = useState<boolean>(false);
   const [isPassportOpen, setIsPassportOpen] = useState<boolean>(false);
   const [selectedSkillCategory, setSelectedSkillCategory] = useState<string>('frontend');
@@ -346,7 +348,7 @@ export const KirikouWorld: React.FC = () => {
 
     const handleWheel = (e: WheelEvent) => {
       // Don't intercept if any modal is currently open
-      if (selectedProject || isDossierOpen || isAdminOpen || isCalaoTourOpen || isPassportOpen) {
+      if (selectedProject || isDossierOpen || isCvOpen || isAdminOpen || isCalaoTourOpen || isPassportOpen) {
         return;
       }
 
@@ -371,7 +373,7 @@ export const KirikouWorld: React.FC = () => {
     };
 
     const handleTouchStart = (e: TouchEvent) => {
-      if (selectedProject || isDossierOpen || isAdminOpen || isCalaoTourOpen || isPassportOpen) {
+      if (selectedProject || isDossierOpen || isCvOpen || isAdminOpen || isCalaoTourOpen || isPassportOpen) {
         return;
       }
       if (e.touches.length === 1 && scrollContainerRef.current) {
@@ -385,7 +387,7 @@ export const KirikouWorld: React.FC = () => {
 
     const handleTouchMove = (e: TouchEvent) => {
       if (!touchStartRef.current || !scrollContainerRef.current) return;
-      if (selectedProject || isDossierOpen || isAdminOpen || isCalaoTourOpen || isPassportOpen) {
+      if (selectedProject || isDossierOpen || isCvOpen || isAdminOpen || isCalaoTourOpen || isPassportOpen) {
         return;
       }
 
@@ -442,6 +444,7 @@ export const KirikouWorld: React.FC = () => {
   }, [
     selectedProject,
     isDossierOpen,
+    isCvOpen,
     isAdminOpen,
     isCalaoTourOpen,
     isPassportOpen,
@@ -460,7 +463,7 @@ export const KirikouWorld: React.FC = () => {
         return;
       }
 
-      if (selectedProject || isDossierOpen || isAdminOpen) return;
+      if (selectedProject || isDossierOpen || isCvOpen || isAdminOpen || isCalaoTourOpen || isPassportOpen) return;
       if (
         e.key === 'ArrowRight' ||
         e.key === 'd' ||
@@ -486,7 +489,7 @@ export const KirikouWorld: React.FC = () => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentChapter, selectedProject, isDossierOpen, isAdminOpen, characterX, isJumping, openAdminModal]);
+  }, [currentChapter, selectedProject, isDossierOpen, isCvOpen, isAdminOpen, isCalaoTourOpen, isPassportOpen, characterX, isJumping, openAdminModal]);
 
   // Unlock authentic African AudioEngine on user's first gesture
   useEffect(() => {
@@ -688,22 +691,22 @@ export const KirikouWorld: React.FC = () => {
             <span>VISITE 60S</span>
           </button>
 
-          {/* Direct PDF CV Link */}
-          <a
-            href="/assets/cv-junes-agassounon.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => playInteract()}
+          {/* Curriculum Vitae Modal & Download Button */}
+          <button
+            onClick={() => {
+              playInteract();
+              setIsCvOpen(true);
+            }}
             className={`flex items-center gap-1 sm:gap-1.5 px-2.5 py-1.5 sm:px-3.5 sm:py-2 border font-mono font-bold text-xs rounded-xl sm:rounded-2xl shadow-sm transition-all active:scale-95 whitespace-nowrap shrink-0 ${
               atmosphere === 'night'
                 ? 'bg-[#23203C] border-white/20 text-[#FAF0CA] hover:bg-[#2F2B4E]'
                 : 'bg-[#FDFBF7] border-[#D95D39]/30 text-[#D95D39] hover:bg-[#F3EDE2]'
             }`}
-            title="Consulter et télécharger le CV au format PDF"
+            title="Consulter le CV officiel et télécharger en PDF"
           >
             <FileText className="w-3.5 h-3.5" />
             <span className="text-[11px] sm:text-xs">CV (PDF)</span>
-          </a>
+          </button>
 
           {/* Direct Contact Button */}
           <button
@@ -1387,16 +1390,18 @@ export const KirikouWorld: React.FC = () => {
                 </button>
 
                 <div className="grid grid-cols-2 gap-2">
-                  <a
-                    href="/assets/cv-junes-agassounon.pdf"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => playInteract()}
-                    className="py-2 px-3 bg-[#FAF7F2] hover:bg-[#F3EDE2] border border-[#D95D39]/20 text-[#2B201A] font-mono font-bold text-[11px] rounded-xl transition-all flex items-center justify-center gap-1.5"
+                  <button
+                    type="button"
+                    onClick={() => {
+                      playInteract();
+                      setIsCvOpen(true);
+                    }}
+                    className="py-2 px-3 bg-[#FAF7F2] hover:bg-[#F3EDE2] border border-[#D95D39]/20 text-[#2B201A] font-mono font-bold text-[11px] rounded-xl transition-all flex items-center justify-center gap-1.5 active:scale-95"
+                    title="Consulter le CV officiel et télécharger en PDF"
                   >
                     <FileText className="w-3 h-3 text-[#D95D39]" />
                     <span>CV (PDF)</span>
-                  </a>
+                  </button>
 
                   <button
                     type="button"
@@ -1541,6 +1546,12 @@ export const KirikouWorld: React.FC = () => {
         isOpen={isPassportOpen}
         onClose={() => setIsPassportOpen(false)}
         collectedCowriesCount={collectedCowries.length}
+      />
+
+      {/* Official Curriculum Vitae Modal (Interactive, Printable & Downloadable) */}
+      <CurriculumVitaeModal
+        isOpen={isCvOpen}
+        onClose={() => setIsCvOpen(false)}
       />
 
       {/* ======================================================== */}
