@@ -106,58 +106,144 @@ export const KirikouWorld: React.FC = () => {
   const skills = useDataStore((s) => s.skills);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const walkTimeoutRef = useRef<number | null>(null);
+  const characterXRef = useRef<number>(180);
+  const isWalkingRef = useRef<boolean>(false);
+  const walkAnimRef = useRef<number | null>(null);
+  const lastFootstepTimeRef = useRef<number>(0);
 
   // Chapter target positions (in pixels)
   const chapterPositions = [180, 1150, 2150, 3050, 3850];
   const totalWorldWidth = 4400;
 
-  // Move character directly to a specific coordinate
+  // Atmosphere cycling helper for mobile quick toggle
+  const cycleAtmosphere = () => {
+    playInteract();
+    setAtmosphere((prev) => (prev === 'day' ? 'sunset' : prev === 'sunset' ? 'night' : 'day'));
+  };
+
+  // Move character visibly with real-time walking animation, footstep sounds, and smooth camera tracking
   const walkToPosition = (targetX: number) => {
     playInteract();
     initAmbient();
 
-    setDirection(targetX >= characterX ? 'right' : 'left');
+    const clampedTarget = Math.max(80, Math.min(totalWorldWidth - 250, targetX));
+    const startX = characterXRef.current;
+    const distance = Math.abs(clampedTarget - startX);
+
+    if (distance < 5) return;
+
+    // Set walking direction
+    const newDir = clampedTarget >= startX ? 'right' : 'left';
+    setDirection(newDir);
     setIsWalking(true);
+    isWalkingRef.current = true;
 
+    // Play first footstep immediately
     playFootstep();
-    setTimeout(playFootstep, 200);
-    setTimeout(playFootstep, 400);
+    lastFootstepTimeRef.current = performance.now();
 
-    setCharacterX(targetX);
-
-    // Compute closest chapter for navigation indicator
-    let closestIndex = 0;
-    let minDiff = 99999;
-    chapterPositions.forEach((pos, idx) => {
-      const diff = Math.abs(pos - targetX);
-      if (diff < minDiff) {
-        minDiff = diff;
-        closestIndex = idx;
-      }
-    });
-    setCurrentChapter(closestIndex);
-
-    if (scrollContainerRef.current) {
-      const screenWidth = window.innerWidth;
-      const targetScroll = Math.max(0, targetX - screenWidth / 2 + 100);
-      scrollContainerRef.current.scrollTo({
-        left: targetScroll,
-        behavior: 'smooth',
-      });
+    // Cancel any previous walk animation loop
+    if (walkAnimRef.current) {
+      cancelAnimationFrame(walkAnimRef.current);
+      walkAnimRef.current = null;
     }
 
-    if (walkTimeoutRef.current) clearTimeout(walkTimeoutRef.current);
-    walkTimeoutRef.current = window.setTimeout(() => {
-      setIsWalking(false);
-    }, 750);
+    // Walking speed: between 300px/s (close by) and 560px/s (long journey across chapters)
+    // Ensures Kirikou visibly takes actual steps across the terrain without being too slow
+    const speed = Math.min(560, Math.max(300, distance / 2.2)); // px per second
+    let lastTime = performance.now();
+    let currentX = startX;
+
+    const stepFrame = (timestamp: number) => {
+      const dt = Math.min(0.05, (timestamp - lastTime) / 1000); // delta in seconds
+      lastTime = timestamp;
+
+      // Play rhythmic footsteps while walking (~every 220ms)
+      if (timestamp - lastFootstepTimeRef.current >= 220) {
+        playFootstep();
+        lastFootstepTimeRef.current = timestamp;
+      }
+
+      const moveStep = speed * dt;
+      const remainingDist = Math.abs(clampedTarget - currentX);
+
+      if (remainingDist <= moveStep) {
+        // Arrived at destination!
+        currentX = clampedTarget;
+        characterXRef.current = currentX;
+        setCharacterX(currentX);
+        setIsWalking(false);
+        isWalkingRef.current = false;
+
+        // Keep camera centered on arrival
+        if (scrollContainerRef.current) {
+          const screenWidth = window.innerWidth;
+          const targetScroll = Math.max(0, Math.min(totalWorldWidth - screenWidth, currentX - screenWidth / 2 + 65));
+          scrollContainerRef.current.scrollLeft = targetScroll;
+        }
+
+        walkAnimRef.current = null;
+        return;
+      }
+
+      // Step towards target
+      currentX += moveStep * (clampedTarget > startX ? 1 : -1);
+      characterXRef.current = currentX;
+      setCharacterX(currentX);
+
+      // Smooth camera follow tracking Kirikou across the landscape
+      if (scrollContainerRef.current) {
+        const screenWidth = window.innerWidth;
+        const targetScroll = Math.max(0, Math.min(totalWorldWidth - screenWidth, currentX - screenWidth / 2 + 65));
+        scrollContainerRef.current.scrollLeft = targetScroll;
+      }
+
+      walkAnimRef.current = requestAnimationFrame(stepFrame);
+    };
+
+    walkAnimRef.current = requestAnimationFrame(stepFrame);
   };
 
   // Navigate to chapter with walking animation
   const goToChapter = (targetIndex: number) => {
     if (targetIndex < 0 || targetIndex >= 5) return;
+    setCurrentChapter(targetIndex);
     walkToPosition(chapterPositions[targetIndex]);
   };
+
+  // Bidirectional Chapter Sync: when user scrolls horizontally, update active chapter indicator
+  const handleScroll = () => {
+    if (!scrollContainerRef.current) return;
+    const scrollLeft = scrollContainerRef.current.scrollLeft;
+    const clientWidth = scrollContainerRef.current.clientWidth;
+    const center = scrollLeft + clientWidth / 2;
+
+    let activeChapter = 0;
+    if (center < 850) {
+      activeChapter = 0;
+    } else if (center < 1850) {
+      activeChapter = 1;
+    } else if (center < 2750) {
+      activeChapter = 2;
+    } else if (center < 3600) {
+      activeChapter = 3;
+    } else {
+      activeChapter = 4;
+    }
+
+    if (currentChapter !== activeChapter) {
+      setCurrentChapter(activeChapter);
+    }
+  };
+
+  // Cleanup animation frame on unmount
+  useEffect(() => {
+    return () => {
+      if (walkAnimRef.current) {
+        cancelAnimationFrame(walkAnimRef.current);
+      }
+    };
+  }, []);
 
   // Jump animation trigger
   const triggerJump = () => {
@@ -266,23 +352,23 @@ export const KirikouWorld: React.FC = () => {
       atmosphere === 'night' ? 'bg-[#14172B] text-[#FAF0CA]' : 'bg-[#FAF7F2] text-[#2B201A]'
     }`}>
       {/* ======================================================== */}
-      {/* 1. SIMPLE, CRISP HEADER (IN FLEX FLOW, NEVER OVERLAPS)   */}
+      {/* 1. SIMPLE, CRISP HEADER (RESPONSIVE MOBILE & DESKTOP)     */}
       {/* ======================================================== */}
-      <header className={`h-16 shrink-0 z-30 px-4 md:px-8 flex items-center justify-between border-b transition-colors duration-500 shadow-sm ${
+      <header className={`h-14 sm:h-16 shrink-0 z-30 px-3 sm:px-6 md:px-8 flex items-center justify-between border-b transition-colors duration-500 shadow-sm ${
         atmosphere === 'night'
           ? 'bg-[#181B2E] border-white/10 text-white'
           : 'bg-[#FAF7F2] border-[#D95D39]/15 text-[#2B201A]'
       }`}>
         {/* Left: Brand Identity */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#D95D39] to-[#E76F51] text-white font-mono font-extrabold flex items-center justify-center text-sm shadow-sm border border-[#E9C46A]/50">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#D95D39] to-[#E76F51] text-white font-mono font-extrabold flex items-center justify-center text-xs sm:text-sm shadow-sm border border-[#E9C46A]/50 shrink-0">
             JA
           </div>
-          <div>
-            <div className="font-title font-bold text-xl md:text-2xl tracking-tight leading-none text-[#1C120C]">
+          <div className="min-w-0">
+            <div className="font-title font-bold text-sm sm:text-xl md:text-2xl tracking-tight leading-tight text-[#1C120C] truncate max-w-[135px] xs:max-w-[180px] sm:max-w-none">
               JUNES AGASSOUNON
             </div>
-            <p className={`text-xs font-body font-semibold mt-0.5 ${
+            <p className={`text-[10px] sm:text-xs font-body font-semibold truncate max-w-[135px] xs:max-w-[180px] sm:max-w-none ${
               atmosphere === 'night' ? 'text-[#E9C46A]' : 'text-[#7A583A]'
             }`}>
               Développeur Web &amp; Graphiste
@@ -291,9 +377,26 @@ export const KirikouWorld: React.FC = () => {
         </div>
 
         {/* Right: Quick Action Controls */}
-        <div className="flex items-center gap-2 md:gap-3">
-          {/* Poetic Day / Sunset / Night Atmosphere Switcher */}
-          <div className="flex items-center p-1 rounded-2xl border border-[#D95D39]/20 bg-black/5 gap-1">
+        <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 shrink-0">
+          {/* Mobile Atmosphere Single Toggle (Day -> Sunset -> Night) */}
+          <button
+            onClick={cycleAtmosphere}
+            className={`sm:hidden p-2 rounded-xl border transition-all shrink-0 active:scale-95 ${
+              atmosphere === 'day'
+                ? 'bg-[#FAF7F2] border-[#D95D39]/30 text-[#D95D39] shadow-sm'
+                : atmosphere === 'sunset'
+                ? 'bg-[#D95D39] border-[#D95D39] text-white shadow-sm'
+                : 'bg-[#2A2B4A] border-white/20 text-[#E9C46A] shadow-sm'
+            }`}
+            title="Changer d'atmosphère (Jour / Crépuscule / Nuit)"
+          >
+            {atmosphere === 'day' && <Sun className="w-4 h-4" />}
+            {atmosphere === 'sunset' && <Sunset className="w-4 h-4" />}
+            {atmosphere === 'night' && <Moon className="w-4 h-4" />}
+          </button>
+
+          {/* Desktop Poetic Day / Sunset / Night Atmosphere Segmented Switcher */}
+          <div className="hidden sm:flex items-center p-1 rounded-2xl border border-[#D95D39]/20 bg-black/5 gap-1">
             <button
               onClick={() => setAtmosphere('day')}
               className={`p-1.5 rounded-xl transition-all ${
@@ -323,35 +426,35 @@ export const KirikouWorld: React.FC = () => {
             </button>
           </div>
 
-          {/* Audio toggle button with authentic African Kora status badge */}
+          {/* Audio toggle button with authentic African Kora & Tambour status */}
           <button
             onClick={() => {
               initAmbient();
               toggleMute();
             }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-2xl shadow-sm transition-all active:scale-95 whitespace-nowrap shrink-0 ${
+            className={`flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 border rounded-xl sm:rounded-2xl shadow-sm transition-all active:scale-95 whitespace-nowrap shrink-0 ${
               audioSettings.muted
                 ? 'bg-rose-500/10 border-rose-500/30 text-rose-600 hover:bg-rose-500/20'
                 : atmosphere === 'night'
                 ? 'bg-[#2A2645] border-[#E9C46A]/40 text-[#E9C46A] shadow-[0_0_12px_rgba(233,196,106,0.15)]'
                 : 'bg-[#FAF0CA] border-[#D95D39]/30 text-[#8C4A28] shadow-[0_0_12px_rgba(217,93,57,0.1)]'
             }`}
-            title={audioSettings.muted ? 'Activer la Kora mandingue & le vent de la savane' : 'Couper le son'}
+            title={audioSettings.muted ? 'Activer la Kora mandingue & les tambours de la savane' : 'Couper le son'}
           >
             {audioSettings.muted ? (
               <>
-                <VolumeX className="w-3.5 h-3.5 text-rose-500" />
+                <VolumeX className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-rose-500" />
                 <span className="text-[11px] font-mono font-bold text-rose-500 hidden sm:inline">Son Off</span>
               </>
             ) : (
               <>
-                <Volume2 className="w-3.5 h-3.5 text-[#D95D39] animate-pulse" />
-                <span className="text-[11px] font-mono font-bold hidden sm:inline">Kora &amp; Savane</span>
+                <Volume2 className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-[#D95D39] animate-pulse" />
+                <span className="text-[11px] font-mono font-bold hidden sm:inline">Kora &amp; Tambour</span>
               </>
             )}
           </button>
 
-          {/* Cowrie Discovery Counter Badge */}
+          {/* Cowrie Discovery Counter Badge (Hidden on small mobile) */}
           <button
             type="button"
             onClick={() => {
@@ -378,7 +481,7 @@ export const KirikouWorld: React.FC = () => {
               playInteract();
               openAdminModal();
             }}
-            className={`relative p-2.5 border rounded-2xl shadow-sm transition-all shrink-0 ${
+            className={`relative p-2 sm:p-2.5 border rounded-xl sm:rounded-2xl shadow-sm transition-all shrink-0 active:scale-95 ${
               atmosphere === 'night'
                 ? 'bg-[#23203C] border-white/10 text-[#E9C46A] hover:bg-[#2F2B4E]'
                 : 'bg-[#FDFBF7] border-[#D95D39]/25 text-[#2B201A] hover:bg-[#F3EDE2]'
@@ -393,17 +496,17 @@ export const KirikouWorld: React.FC = () => {
             )}
           </button>
 
-          {/* Calao Guide 60s Tour Button */}
+          {/* Calao Guide 60s Tour Button (Visible on md+) */}
           <button
             onClick={() => {
               playInteract();
               setIsCalaoTourOpen(true);
             }}
-            className="flex items-center gap-1.5 px-3 py-2 bg-[#FAF0CA] hover:bg-[#F4D35E] text-[#6E3719] border border-[#E9C46A] font-mono font-bold text-xs rounded-2xl shadow-sm transition-all active:scale-95 whitespace-nowrap shrink-0"
+            className="hidden md:flex items-center gap-1.5 px-3 py-2 bg-[#FAF0CA] hover:bg-[#F4D35E] text-[#6E3719] border border-[#E9C46A] font-mono font-bold text-xs rounded-2xl shadow-sm transition-all active:scale-95 whitespace-nowrap shrink-0"
             title="Visite guidée express en 60 secondes avec le Calao pour les recruteurs"
           >
             <Feather className="w-3.5 h-3.5 text-[#8C4A28]" />
-            <span className="hidden md:inline">VISITE 60S</span>
+            <span>VISITE 60S</span>
           </button>
 
           {/* Dossier CV Express Button */}
@@ -412,22 +515,25 @@ export const KirikouWorld: React.FC = () => {
               playInteract();
               setIsDossierOpen(true);
             }}
-            className={`flex items-center gap-1.5 px-3.5 md:px-4 py-2 border font-mono font-bold text-xs rounded-2xl shadow-sm transition-all active:scale-95 whitespace-nowrap shrink-0 ${
+            className={`flex items-center gap-1 sm:gap-1.5 px-2.5 py-1.5 sm:px-3.5 sm:py-2 border font-mono font-bold text-xs rounded-xl sm:rounded-2xl shadow-sm transition-all active:scale-95 whitespace-nowrap shrink-0 ${
               atmosphere === 'night'
                 ? 'bg-[#23203C] border-white/20 text-[#FAF0CA] hover:bg-[#2F2B4E]'
                 : 'bg-[#FDFBF7] border-[#D95D39]/30 text-[#D95D39] hover:bg-[#F3EDE2]'
             }`}
+            title="Dossier CV Express (Profil &amp; Compétences)"
           >
             <FileText className="w-3.5 h-3.5" />
-            <span>DOSSIER EXPRESS</span>
+            <span className="sm:hidden text-[11px]">CV</span>
+            <span className="hidden sm:inline">DOSSIER EXPRESS</span>
           </button>
 
           {/* Direct Contact Button */}
           <button
             onClick={() => goToChapter(3)}
-            className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-[#D95D39] to-[#E76F51] hover:from-[#E76F51] hover:to-[#E9C46A] text-white font-mono font-bold text-xs rounded-2xl shadow-md transition-all active:scale-95 whitespace-nowrap shrink-0"
+            className="flex items-center justify-center gap-1.5 p-2 sm:px-4 sm:py-2 bg-gradient-to-r from-[#D95D39] to-[#E76F51] hover:from-[#E76F51] hover:to-[#E9C46A] text-white font-mono font-bold text-xs rounded-xl sm:rounded-2xl shadow-md transition-all active:scale-95 shrink-0"
+            title="Contacter Junes AGASSOUNON (L'Arbre à Palabre)"
           >
-            <Mail className="w-3.5 h-3.5" />
+            <Mail className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
             <span className="hidden sm:inline">CONTACTER</span>
           </button>
         </div>
@@ -439,7 +545,8 @@ export const KirikouWorld: React.FC = () => {
       {/* ======================================================== */}
       <div
         ref={scrollContainerRef}
-        className="flex-1 w-full relative overflow-x-auto overflow-y-hidden no-scrollbar"
+        onScroll={handleScroll}
+        className="flex-1 w-full relative overflow-x-auto overflow-y-hidden no-scrollbar touch-pan-x"
         style={{ scrollBehavior: 'smooth' }}
       >
         <div
@@ -1151,7 +1258,7 @@ export const KirikouWorld: React.FC = () => {
           {/* THE 2D ANIMATED CHARACTER WALKING ON CLAY PATH            */}
           {/* ======================================================== */}
           <div
-            className={`absolute bottom-[85px] z-30 transition-all duration-300 ease-out ${
+            className={`absolute bottom-[85px] z-30 transition-transform duration-300 ease-out ${
               isJumping ? '-translate-y-16 scale-105' : 'translate-y-0 scale-100'
             }`}
             style={{
@@ -1169,17 +1276,17 @@ export const KirikouWorld: React.FC = () => {
       {/* ======================================================== */}
       {/* 3. SIMPLE BOTTOM STORYBOOK CHAPTER BAR                   */}
       {/* ======================================================== */}
-      <footer className="fixed bottom-3 left-0 right-0 z-30 flex justify-center px-3 sm:px-4 pointer-events-none">
-        <div className={`pointer-events-auto flex items-center gap-1.5 sm:gap-2.5 p-2 sm:p-2.5 border-2 rounded-2xl shadow-2xl w-auto max-w-[96vw] transition-colors ${
+      <footer className="fixed bottom-2.5 sm:bottom-3 left-0 right-0 z-30 flex justify-center px-2 sm:px-4 pointer-events-none pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+        <div className={`pointer-events-auto flex items-center gap-1 sm:gap-2 p-1.5 sm:p-2.5 border-2 rounded-2xl shadow-2xl w-auto max-w-[98vw] transition-colors ${
           atmosphere === 'night'
-            ? 'bg-[#181B2E] border-white/20 text-white'
-            : 'bg-[#FDFBF7] border-[#D95D39]/30 text-[#2B201A]'
+            ? 'bg-[#181B2E]/95 backdrop-blur-md border-white/20 text-white'
+            : 'bg-[#FDFBF7]/95 backdrop-blur-md border-[#D95D39]/30 text-[#2B201A]'
         }`}>
           {/* Previous Button */}
           <button
             onClick={() => goToChapter(Math.max(0, currentChapter - 1))}
             disabled={currentChapter === 0}
-            className={`p-2 sm:p-2.5 border rounded-xl transition-all disabled:opacity-30 shrink-0 ${
+            className={`p-1.5 sm:p-2.5 border rounded-xl transition-all disabled:opacity-30 shrink-0 active:scale-95 ${
               atmosphere === 'night'
                 ? 'bg-[#23203C] border-white/10 text-white hover:bg-[#2F2B4E]'
                 : 'bg-[#FAF7F2] border-[#D95D39]/20 text-[#2B201A] hover:bg-[#F3EDE2]'
@@ -1190,14 +1297,14 @@ export const KirikouWorld: React.FC = () => {
           </button>
 
           {/* Chapter Indicator Tabs — Clean Lucide SVG Icons only */}
-          <div className="flex items-center gap-1 sm:gap-2 px-0.5">
+          <div className="flex items-center gap-1 sm:gap-1.5 px-0.5">
             {chapters.map((ch, idx) => {
               const Icon = ch.icon;
               return (
                 <button
                   key={idx}
                   onClick={() => goToChapter(idx)}
-                  className={`flex items-center justify-center gap-1.5 py-2 px-2.5 sm:px-3.5 rounded-xl transition-all whitespace-nowrap text-xs font-mono font-bold leading-none shrink-0 ${
+                  className={`flex items-center justify-center gap-1 py-1.5 px-2 sm:py-2 sm:px-3 rounded-xl transition-all whitespace-nowrap text-xs font-mono font-bold leading-none shrink-0 active:scale-95 ${
                     currentChapter === idx
                       ? 'bg-[#D95D39] text-white shadow-md'
                       : atmosphere === 'night'
@@ -1210,7 +1317,7 @@ export const KirikouWorld: React.FC = () => {
                   <span className="hidden sm:inline">
                     {ch.num}. {ch.shortTitle}
                   </span>
-                  <span className="sm:hidden font-mono">{ch.num}</span>
+                  <span className="sm:hidden font-mono text-[11px]">{ch.num}</span>
                 </button>
               );
             })}
@@ -1220,7 +1327,7 @@ export const KirikouWorld: React.FC = () => {
           <button
             onClick={() => goToChapter(Math.min(4, currentChapter + 1))}
             disabled={currentChapter === 4}
-            className={`p-2 sm:p-2.5 border rounded-xl transition-all disabled:opacity-30 shrink-0 ${
+            className={`p-1.5 sm:p-2.5 border rounded-xl transition-all disabled:opacity-30 shrink-0 active:scale-95 ${
               atmosphere === 'night'
                 ? 'bg-[#23203C] border-white/10 text-white hover:bg-[#2F2B4E]'
                 : 'bg-[#FAF7F2] border-[#D95D39]/20 text-[#2B201A] hover:bg-[#F3EDE2]'

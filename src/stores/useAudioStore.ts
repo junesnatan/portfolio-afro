@@ -22,12 +22,16 @@ class AfricanAudioEngine {
   private windGain: GainNode | null = null;
   private cicadaGain: GainNode | null = null;
   private koraGain: GainNode | null = null;
+  private drumGain: GainNode | null = null;
+  private drumFilter: BiquadFilterNode | null = null;
 
   // Active looping nodes
   private windSource: AudioBufferSourceNode | null = null;
   private windFilter: BiquadFilterNode | null = null;
   private cicadaInterval: number | null = null;
   private koraInterval: number | null = null;
+  private drumInterval: number | null = null;
+  private drumStep = 0;
 
   // Noise buffers cache
   private noiseBuffer: AudioBuffer | null = null;
@@ -160,6 +164,25 @@ class AfricanAudioEngine {
         this.triggerKoraStep();
       }, 420);
 
+      // --- D) Subtle Sahelian Drum Groove (Battement de Tambour Mandingue) ---
+      // Delicate, warm background heartbeat (Dundun, Djembe soft tones & Calabash)
+      this.drumGain = this.ctx.createGain();
+      this.drumGain.gain.setValueAtTime(0.065, now);
+
+      this.drumFilter = this.ctx.createBiquadFilter();
+      this.drumFilter.type = 'lowpass';
+      this.drumFilter.frequency.setValueAtTime(460, now);
+
+      this.drumGain.connect(this.drumFilter);
+      this.drumFilter.connect(this.ambientGain);
+
+      this.drumStep = 0;
+      // Traditional 16-step African cadence at ~96 BPM (approx 155ms per 16th/8th pulse)
+      this.drumInterval = window.setInterval(() => {
+        if (!this.ctx || !this.drumGain) return;
+        this.triggerDrumGrooveStep();
+      }, 155);
+
       // Play first gentle Kora note immediately
       this.playKoraPluck(this.koraScale[4], 0.22);
     } catch (e) {
@@ -279,6 +302,169 @@ class AfricanAudioEngine {
     } catch {}
   }
 
+  // --------------------------------------------------------------------------
+  // DELICATE BACKGROUND AFRICAN DRUM GROOVE (Dundun, Djembe & Tama pulse)
+  // Synthesizes a soft, warm Sahelian acoustic heartbeat at low volume
+  // --------------------------------------------------------------------------
+  private triggerDrumGrooveStep() {
+    if (!this.ctx || !this.drumGain) return;
+    try {
+      const now = this.ctx.currentTime;
+      const step = this.drumStep % 16;
+      this.drumStep++;
+
+      switch (step) {
+        case 0:
+          // Deep soft Dundun bass + subtle calabash shaker whisper
+          this.playAmbientDrumBass(now, 0.42);
+          this.playAmbientDrumShaker(now, 0.12);
+          break;
+        case 1:
+        case 3:
+        case 5:
+        case 9:
+        case 11:
+        case 13:
+          // Ghost shaker whisper tick
+          this.playAmbientDrumShaker(now, 0.08);
+          break;
+        case 2:
+          // Tama (talking drum) soft downward bend
+          this.playAmbientDrumTone(now, 195, 160, 0.28);
+          break;
+        case 4:
+          // Second warm bass pulse
+          this.playAmbientDrumBass(now, 0.36);
+          this.playAmbientDrumShaker(now, 0.1);
+          break;
+        case 6:
+          // Singing djembe tone + soft touch
+          this.playAmbientDrumTone(now, 225, 185, 0.32);
+          this.playAmbientDrumSlap(now, 0.14);
+          break;
+        case 7:
+          this.playAmbientDrumShaker(now, 0.1);
+          break;
+        case 8:
+          // Deep soft Dundun bass
+          this.playAmbientDrumBass(now, 0.44);
+          this.playAmbientDrumShaker(now, 0.12);
+          break;
+        case 10:
+          // Tama singing tone
+          this.playAmbientDrumTone(now, 240, 195, 0.34);
+          break;
+        case 12:
+          // Syncopated double bass pulse
+          this.playAmbientDrumBass(now, 0.32);
+          this.playAmbientDrumShaker(now, 0.1);
+          break;
+        case 14:
+          // Warm tone
+          this.playAmbientDrumTone(now, 215, 175, 0.3);
+          this.playAmbientDrumSlap(now, 0.13);
+          break;
+        case 15:
+          this.playAmbientDrumShaker(now, 0.12);
+          break;
+      }
+    } catch {}
+  }
+
+  // Soft low Dundun / Djembe bass pulse (sub-bass warmth)
+  private playAmbientDrumBass(now: number, velocity: number) {
+    if (!this.ctx || !this.drumGain) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    const filter = this.ctx.createBiquadFilter();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(68, now);
+    osc.frequency.exponentialRampToValueAtTime(42, now + 0.28);
+
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(140, now);
+
+    gain.gain.setValueAtTime(velocity * 0.45, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.drumGain);
+
+    osc.start(now);
+    osc.stop(now + 0.32);
+  }
+
+  // Subtle open tone / talking drum pitch bend
+  private playAmbientDrumTone(now: number, startFreq: number, endFreq: number, velocity: number) {
+    if (!this.ctx || !this.drumGain) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    const filter = this.ctx.createBiquadFilter();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(startFreq, now);
+    osc.frequency.exponentialRampToValueAtTime(endFreq, now + 0.18);
+
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime((startFreq + endFreq) / 2, now);
+    filter.Q.setValueAtTime(3.0, now);
+
+    gain.gain.setValueAtTime(velocity * 0.35, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.drumGain);
+
+    osc.start(now);
+    osc.stop(now + 0.22);
+  }
+
+  // Very delicate soft rim slap / ghost tap
+  private playAmbientDrumSlap(now: number, velocity: number) {
+    if (!this.ctx || !this.drumGain) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(360, now);
+    osc.frequency.exponentialRampToValueAtTime(150, now + 0.06);
+
+    gain.gain.setValueAtTime(velocity * 0.25, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+
+    osc.connect(gain);
+    gain.connect(this.drumGain);
+
+    osc.start(now);
+    osc.stop(now + 0.08);
+  }
+
+  // Soft calabash shaker / cowrie rattle whisper
+  private playAmbientDrumShaker(now: number, velocity: number) {
+    if (!this.ctx || !this.drumGain || !this.noiseBuffer) return;
+    const source = this.ctx.createBufferSource();
+    source.buffer = this.noiseBuffer;
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(2200, now);
+    filter.Q.setValueAtTime(2.5, now);
+
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(velocity * 0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+
+    source.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.drumGain);
+
+    source.start(now);
+    source.stop(now + 0.05);
+  }
+
   public setAmbientVolume(volume: number) {
     if (this.ambientGain && this.ctx) {
       const target = Math.max(0.0001, volume);
@@ -295,12 +481,24 @@ class AfricanAudioEngine {
       clearInterval(this.koraInterval);
       this.koraInterval = null;
     }
+    if (this.drumInterval) {
+      clearInterval(this.drumInterval);
+      this.drumInterval = null;
+    }
     if (this.windSource) {
       try {
         this.windSource.stop();
         this.windSource.disconnect();
       } catch {}
       this.windSource = null;
+    }
+    if (this.drumGain) {
+      this.drumGain.disconnect();
+      this.drumGain = null;
+    }
+    if (this.drumFilter) {
+      this.drumFilter.disconnect();
+      this.drumFilter = null;
     }
     if (this.ambientGain) {
       this.ambientGain.disconnect();
