@@ -21,7 +21,7 @@
     line-height: 1.6;
     user-select: none;
     -webkit-user-select: none;
-    touch-action: none;
+    touch-action: pan-y pan-x;
   }
 
   h1,

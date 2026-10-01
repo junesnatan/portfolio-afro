@@ -32,6 +32,7 @@ import {
   Mail,
   ChevronRight,
   ChevronLeft,
+  ChevronDown,
   Sparkles,
   Send,
   CheckCircle2,
@@ -107,6 +108,8 @@ export const KirikouWorld: React.FC = () => {
   const isWalkingRef = useRef<boolean>(false);
   const walkAnimRef = useRef<number | null>(null);
   const lastFootstepTimeRef = useRef<number>(0);
+  const scrollStopTimerRef = useRef<number | null>(null);
+  const touchStartRef = useRef<{ x: number; y: number; scrollLeft: number } | null>(null);
 
   // Chapter target positions (in pixels)
   const chapterPositions = [180, 1150, 2150, 3050, 3850];
@@ -293,9 +296,51 @@ export const KirikouWorld: React.FC = () => {
     }
   }, [isAdminOpen]);
 
-  // Natural scroll reflex: convert vertical scroll (mouse wheel / trackpad down) into horizontal progression
-  // Immediately starts showing the world and advancing through the chapters
+  // Natural scroll reflex & touch gesture: convert vertical scroll (mouse wheel / trackpad down / mobile swipe up) into horizontal progression
+  // Immediately starts showing the world and advancing through the chapters, while Kirikou actively walks!
   useEffect(() => {
+    // Helper to handle incremental scroll progression (from wheel, trackpad, or touch swipe)
+    const handleScrollDelta = (delta: number) => {
+      if (!scrollContainerRef.current) return;
+      initAmbient(); // Unlocks ambient sound on first interaction
+
+      // 1. Update horizontal scroll
+      const container = scrollContainerRef.current;
+      container.scrollLeft += delta;
+
+      // 2. Set Kirikou walking direction & animation state
+      const dir = delta >= 0 ? 'right' : 'left';
+      setDirection(dir);
+      setIsWalking(true);
+      isWalkingRef.current = true;
+
+      // 3. Move Kirikou visibly across the landscape along with the camera
+      const screenWidth = window.innerWidth;
+      const anchorRatio = screenWidth < 640 ? 0.28 : 0.35;
+      const newKirikouX = Math.max(
+        80,
+        Math.min(totalWorldWidth - 250, container.scrollLeft + screenWidth * anchorRatio)
+      );
+      characterXRef.current = newKirikouX;
+      setCharacterX(newKirikouX);
+
+      // 4. Play rhythmic footsteps while walking
+      const now = performance.now();
+      if (now - lastFootstepTimeRef.current >= 220) {
+        playFootstep();
+        lastFootstepTimeRef.current = now;
+      }
+
+      // 5. Debounced reset to idle when user stops scrolling
+      if (scrollStopTimerRef.current) {
+        window.clearTimeout(scrollStopTimerRef.current);
+      }
+      scrollStopTimerRef.current = window.setTimeout(() => {
+        setIsWalking(false);
+        isWalkingRef.current = false;
+      }, 180);
+    };
+
     const handleWheel = (e: WheelEvent) => {
       // Don't intercept if any modal is currently open
       if (selectedProject || isDossierOpen || isAdminOpen || isCalaoTourOpen || isPassportOpen) {
@@ -315,19 +360,94 @@ export const KirikouWorld: React.FC = () => {
         }
       }
 
-      if (e.deltaY !== 0 && scrollContainerRef.current) {
+      if (e.deltaY !== 0) {
         e.preventDefault();
-        initAmbient(); // Unlocks ambient sound on first scroll
         const multiplier = e.deltaMode === 1 ? 35 : 1;
-        scrollContainerRef.current.scrollLeft += e.deltaY * multiplier;
+        handleScrollDelta(e.deltaY * multiplier);
       }
     };
 
+    const handleTouchStart = (e: TouchEvent) => {
+      if (selectedProject || isDossierOpen || isAdminOpen || isCalaoTourOpen || isPassportOpen) {
+        return;
+      }
+      if (e.touches.length === 1 && scrollContainerRef.current) {
+        touchStartRef.current = {
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY,
+          scrollLeft: scrollContainerRef.current.scrollLeft,
+        };
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!touchStartRef.current || !scrollContainerRef.current) return;
+      if (selectedProject || isDossierOpen || isAdminOpen || isCalaoTourOpen || isPassportOpen) {
+        return;
+      }
+
+      const touch = e.touches[0];
+      const diffX = touchStartRef.current.x - touch.clientX;
+      const diffY = touchStartRef.current.y - touch.clientY;
+
+      // Check if touch is inside an open scrollable card with vertical space remaining
+      const target = e.target as HTMLElement | null;
+      const scrollableParent = target?.closest('.overflow-y-auto, textarea') as HTMLElement | null;
+      if (scrollableParent && scrollableParent.scrollHeight > scrollableParent.clientHeight) {
+        const isAtTop = scrollableParent.scrollTop <= 0 && diffY < 0;
+        const isAtBottom =
+          scrollableParent.scrollTop + scrollableParent.clientHeight >= scrollableParent.scrollHeight - 2 &&
+          diffY > 0;
+        if (!isAtTop && !isAtBottom) {
+          return; // Let card internal scroll proceed
+        }
+      }
+
+      // Vertical swipe (swiping up = scrolling down = move forward)
+      // Horizontal swipe (swiping left = scrolling right = move forward)
+      const isVertical = Math.abs(diffY) > Math.abs(diffX);
+      const delta = isVertical ? diffY * 1.5 : diffX * 1.3;
+
+      if (Math.abs(delta) > 2) {
+        if (e.cancelable) {
+          e.preventDefault();
+        }
+        touchStartRef.current.x = touch.clientX;
+        touchStartRef.current.y = touch.clientY;
+        handleScrollDelta(delta);
+      }
+    };
+
+    const handleTouchEnd = () => {
+      touchStartRef.current = null;
+    };
+
     window.addEventListener('wheel', handleWheel, { passive: false });
+    window.addEventListener('touchstart', handleTouchStart, { passive: false });
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+    window.addEventListener('touchend', handleTouchEnd);
+    window.addEventListener('touchcancel', handleTouchEnd);
+
     return () => {
       window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('touchcancel', handleTouchEnd);
+      if (scrollStopTimerRef.current) {
+        window.clearTimeout(scrollStopTimerRef.current);
+      }
     };
-  }, [selectedProject, isDossierOpen, isAdminOpen, isCalaoTourOpen, isPassportOpen, initAmbient]);
+  }, [
+    selectedProject,
+    isDossierOpen,
+    isAdminOpen,
+    isCalaoTourOpen,
+    isPassportOpen,
+    initAmbient,
+    playFootstep,
+    totalWorldWidth,
+  ]);
 
   // Keyboard navigation (Left / Right / Down / Up arrows, Space to Jump, Ctrl+Shift+A for Admin)
   useEffect(() => {
@@ -604,8 +724,7 @@ export const KirikouWorld: React.FC = () => {
       <div
         ref={scrollContainerRef}
         onScroll={handleScroll}
-        className="flex-1 w-full relative overflow-x-auto overflow-y-hidden no-scrollbar touch-pan-x"
-        style={{ scrollBehavior: 'smooth' }}
+        className="flex-1 w-full relative overflow-x-auto overflow-y-hidden no-scrollbar"
       >
         <div
           className="relative h-full overflow-hidden"
@@ -753,7 +872,7 @@ export const KirikouWorld: React.FC = () => {
           />
 
           {/* Chapter 1 Story Card (Never obscured by navbar: canvas starts strictly below header) */}
-          <div className={`absolute bottom-[145px] left-[430px] w-[320px] sm:w-[350px] md:w-[380px] p-4 sm:p-5 border-2 rounded-3xl shadow-xl max-h-[calc(100%-160px)] overflow-y-auto ${
+          <div className={`absolute bottom-[145px] left-[350px] sm:left-[430px] w-[320px] sm:w-[350px] md:w-[380px] p-4 sm:p-5 border-2 rounded-3xl shadow-xl max-h-[calc(100%-160px)] overflow-y-auto ${
             atmosphere === 'night'
               ? 'bg-[#1E1C2E] border-white/20 text-white'
               : 'bg-[#FDFBF7] border-[#D95D39]/30 text-[#2B201A]'
@@ -1313,6 +1432,17 @@ export const KirikouWorld: React.FC = () => {
             />
           </div>
         </div>
+      </div>
+
+      {/* Floating Scroll Down / Exploration Prompt (Fades out when Kirikou starts moving) */}
+      <div
+        className={`fixed bottom-14 sm:bottom-16 left-1/2 -translate-x-1/2 z-30 pointer-events-none transition-all duration-500 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/75 backdrop-blur-sm border border-[#E9C46A]/50 text-[#FAF0CA] text-[11px] sm:text-xs font-mono shadow-2xl ${
+          characterX > 250 ? 'opacity-0 translate-y-3 pointer-events-none' : 'opacity-100 animate-bounce'
+        }`}
+      >
+        <ChevronDown className="w-3.5 h-3.5 text-[#E9C46A] animate-pulse" />
+        <span>Scrollez vers le bas pour explorer</span>
+        <ChevronRight className="w-3.5 h-3.5 text-[#E9C46A]" />
       </div>
 
       {/* ======================================================== */}
