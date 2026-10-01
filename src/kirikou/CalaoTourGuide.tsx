@@ -212,19 +212,19 @@ export const CalaoTourGuide: React.FC<CalaoTourGuideProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 pointer-events-none flex flex-col justify-between p-4 md:p-6 font-sans">
+    <div className="fixed inset-0 z-50 pointer-events-none flex flex-col justify-between p-2 sm:p-4 md:p-6 font-sans">
       {/* ======================================================== */}
       {/* TOP FLIGHT BAR : Calao Guide Status & Exit               */}
       {/* ======================================================== */}
-      <div className="pointer-events-auto flex items-center justify-between max-w-4xl mx-auto w-full bg-[#181B2E]/90 border border-[#E9C46A]/40 rounded-3xl p-3 md:p-4 shadow-2xl backdrop-blur-none text-[#FAF0CA]">
+      <div className="pointer-events-auto flex items-center justify-between max-w-4xl mx-auto w-full bg-[#181B2E]/95 border border-[#E9C46A]/40 rounded-2xl sm:rounded-3xl p-2 sm:p-3 md:p-4 shadow-2xl text-[#FAF0CA]">
         {/* Left: Calao Avatar & Info */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           {/* Animated Stylized Calao Avatar */}
-          <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#D95D39] to-[#E9C46A] flex items-center justify-center border border-white/20 shadow-inner">
+          <div className="relative w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-[#D95D39] to-[#E9C46A] flex items-center justify-center border border-white/20 shadow-inner shrink-0">
             <svg
               viewBox="0 0 40 40"
-              className={`w-8 h-8 transition-transform duration-200 ${
-                calaoFlap ? '-translate-y-1 rotate-3' : 'translate-y-0.5 -rotate-2'
+              className={`w-6 h-6 sm:w-8 sm:h-8 transition-transform duration-200 ${
+                calaoFlap ? '-translate-y-0.5 rotate-3' : 'translate-y-0.5 -rotate-2'
               }`}
             >
               {/* Calao Large Golden Curved Beak with Horn Casque */}
@@ -251,59 +251,59 @@ export const CalaoTourGuide: React.FC<CalaoTourGuideProps> = ({
                 fill="#3D2619"
               />
             </svg>
-            <span className="absolute -bottom-1 -right-1 flex h-3 w-3">
+            <span className="absolute -bottom-0.5 -right-0.5 flex h-2.5 w-2.5 sm:h-3 sm:w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E9C46A] opacity-75" />
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-[#E9C46A]" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 sm:h-3 sm:w-3 bg-[#E9C46A]" />
             </span>
           </div>
 
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#E9C46A] px-2 py-0.5 rounded-full bg-[#E9C46A]/20">
-                VOL DU CALAO · 60 SECONDES
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <span className="text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-wider text-[#E9C46A] px-1.5 sm:px-2 py-0.5 rounded-full bg-[#E9C46A]/20 shrink-0">
+                VOL CALAO · 60S
               </span>
-              <span className="text-xs font-mono font-bold opacity-80">
-                Étape {currentStepIdx + 1} / {TOUR_STEPS.length}
+              <span className="text-[10px] sm:text-xs font-mono font-bold opacity-80 shrink-0">
+                {currentStepIdx + 1} / {TOUR_STEPS.length}
               </span>
             </div>
-            <h4 className="font-title font-bold text-base md:text-lg text-white">
+            <h4 className="font-title font-bold text-xs sm:text-base md:text-lg text-white truncate max-w-[140px] xs:max-w-[200px] sm:max-w-none">
               {step.title}
             </h4>
           </div>
         </div>
 
         {/* Right: Controls & Exit */}
-        <div className="flex items-center gap-2 md:gap-3">
+        <div className="flex items-center gap-1 sm:gap-2 md:gap-3 shrink-0">
           <button
             onClick={handlePrev}
             disabled={currentStepIdx === 0}
-            className="p-2 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:pointer-events-none transition-all"
+            className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:pointer-events-none transition-all active:scale-95"
             title="Étape précédente"
           >
-            <SkipBack className="w-4 h-4 text-white" />
+            <SkipBack className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
           </button>
 
           <button
             onClick={togglePlayPause}
-            className="p-2.5 rounded-2xl bg-[#D95D39] hover:bg-[#E76F51] text-white shadow-md transition-all active:scale-95"
+            className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-[#D95D39] hover:bg-[#E76F51] text-white shadow-md transition-all active:scale-95"
             title={isPlaying ? 'Pause' : 'Reprendre'}
           >
             {isPlaying ? (
-              <Pause className="w-4 h-4" />
+              <Pause className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             ) : (
-              <Play className="w-4 h-4 fill-current" />
+              <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current" />
             )}
           </button>
 
           <button
             onClick={handleNext}
-            className="p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-all"
+            className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-white/10 hover:bg-white/20 transition-all active:scale-95"
             title="Étape suivante"
           >
-            <SkipForward className="w-4 h-4 text-white" />
+            <SkipForward className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
           </button>
 
-          <div className="h-6 w-px bg-white/20 mx-1 hidden sm:block" />
+          <div className="h-5 sm:h-6 w-px bg-white/20 mx-0.5 sm:mx-1" />
 
           {/* Close Tour button */}
           <button
@@ -311,10 +311,10 @@ export const CalaoTourGuide: React.FC<CalaoTourGuideProps> = ({
               playInteract();
               onClose();
             }}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-mono text-xs font-bold transition-all"
+            className="flex items-center gap-1 p-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-2xl bg-white/10 hover:bg-white/20 text-white font-mono text-xs font-bold transition-all active:scale-95"
             title="Quitter la visite guidée"
           >
-            <X className="w-4 h-4 text-rose-400" />
+            <X className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-400" />
             <span className="hidden sm:inline">Quitter</span>
           </button>
         </div>
@@ -323,9 +323,9 @@ export const CalaoTourGuide: React.FC<CalaoTourGuideProps> = ({
       {/* ======================================================== */}
       {/* BOTTOM NARRATION CARD & METRIC HIGHLIGHTS                */}
       {/* ======================================================== */}
-      <div className="pointer-events-auto max-w-3xl mx-auto w-full bg-[#FAF7F2] border-2 border-[#D95D39]/30 rounded-3xl p-5 md:p-6 shadow-2xl text-[#2B201A] relative animate-fadeIn">
+      <div className="pointer-events-auto max-w-3xl mx-auto w-full bg-[#FAF7F2] border-2 border-[#D95D39]/30 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 md:p-6 shadow-2xl text-[#2B201A] relative animate-fadeIn">
         {/* Step Progress Bar at top of card */}
-        <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#E8D5B5] rounded-t-3xl overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#E8D5B5] rounded-t-2xl sm:rounded-t-3xl overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-[#D95D39] via-[#E76F51] to-[#E9C46A] transition-all duration-150"
             style={{ width: `${stepProgress}%` }}
@@ -333,31 +333,31 @@ export const CalaoTourGuide: React.FC<CalaoTourGuideProps> = ({
         </div>
 
         {/* Header subtitle */}
-        <div className="flex items-center justify-between mb-2 mt-1">
-          <span className="font-script text-xl md:text-2xl font-bold text-[#D95D39] leading-none">
+        <div className="flex items-center justify-between mb-1.5 sm:mb-2 mt-0.5">
+          <span className="font-script text-sm sm:text-xl md:text-2xl font-bold text-[#D95D39] leading-tight truncate">
             ✦ {step.subtitle}
           </span>
-          <span className="text-xs font-body font-bold text-gray-500">
+          <span className="text-[10px] sm:text-xs font-body font-bold text-gray-500 shrink-0 ml-2">
             {Math.round((stepProgress / 100) * step.durationSeconds)}s / {step.durationSeconds}s
           </span>
         </div>
 
         {/* Griot Narration Speech */}
-        <p className="font-body text-sm md:text-base font-medium leading-relaxed italic text-[#3D2619] mb-4">
+        <p className="font-body text-xs sm:text-sm md:text-base font-medium leading-snug sm:leading-relaxed italic text-[#3D2619] mb-2.5 sm:mb-4">
           {step.narration}
         </p>
 
         {/* 3 Metric Badges */}
-        <div className="grid grid-cols-3 gap-2.5 mb-4">
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5 mb-2.5 sm:mb-4">
           {step.highlights.map((h, i) => (
             <div
               key={i}
-              className="p-2.5 rounded-2xl bg-[#FFFDF7] border border-[#D95D39]/20 text-center shadow-sm"
+              className="p-1.5 sm:p-2.5 rounded-xl sm:rounded-2xl bg-[#FFFDF7] border border-[#D95D39]/20 text-center shadow-sm min-w-0"
             >
-              <div className="text-sm md:text-base font-title font-bold text-[#D95D39]">
+              <div className="text-xs sm:text-sm md:text-base font-title font-bold text-[#D95D39] truncate">
                 {h.value}
               </div>
-              <div className="text-[10px] font-body uppercase tracking-tight text-gray-600 font-bold mt-0.5">
+              <div className="text-[8px] sm:text-[10px] font-body uppercase tracking-tight text-gray-600 font-bold mt-0.5 truncate">
                 {h.label}
               </div>
             </div>
@@ -377,7 +377,7 @@ export const CalaoTourGuide: React.FC<CalaoTourGuideProps> = ({
                 playSuccess();
                 onOpenPassport();
               }}
-              className="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-[#D95D39] via-[#E76F51] to-[#E9C46A] hover:opacity-95 text-white font-mono font-extrabold text-xs rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 active:scale-95 whitespace-nowrap"
+              className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-2.5 bg-gradient-to-r from-[#D95D39] via-[#E76F51] to-[#E9C46A] hover:opacity-95 text-white font-mono font-extrabold text-[11px] sm:text-xs rounded-xl sm:rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 active:scale-95 whitespace-nowrap"
             >
               <Award className="w-4 h-4 text-[#FAF0CA]" />
               <span>{step.actionLabel || 'GRAVER MON PASSEPORT'}</span>
@@ -385,7 +385,7 @@ export const CalaoTourGuide: React.FC<CalaoTourGuideProps> = ({
           ) : (
             <button
               onClick={handleNext}
-              className="w-full sm:w-auto px-5 py-2.5 bg-[#D95D39] hover:bg-[#C24C27] text-white font-mono font-bold text-xs rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-95 whitespace-nowrap"
+              className="w-full sm:w-auto px-4 sm:px-5 py-2 sm:py-2.5 bg-[#D95D39] hover:bg-[#C24C27] text-white font-mono font-bold text-[11px] sm:text-xs rounded-xl sm:rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-95 whitespace-nowrap"
             >
               <span>ÉTAPE SUIVANTE</span>
               <ArrowRight className="w-3.5 h-3.5" />

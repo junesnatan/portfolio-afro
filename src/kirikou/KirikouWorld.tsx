@@ -753,19 +753,19 @@ export const KirikouWorld: React.FC = () => {
           />
 
           {/* Chapter 1 Story Card (Never obscured by navbar: canvas starts strictly below header) */}
-          <div className={`absolute bottom-[145px] left-[430px] w-[340px] md:w-[380px] p-5 border-2 rounded-3xl shadow-xl max-h-[calc(100%-160px)] overflow-y-auto ${
+          <div className={`absolute bottom-[145px] left-[430px] w-[320px] sm:w-[350px] md:w-[380px] p-4 sm:p-5 border-2 rounded-3xl shadow-xl max-h-[calc(100%-160px)] overflow-y-auto ${
             atmosphere === 'night'
               ? 'bg-[#1E1C2E] border-white/20 text-white'
               : 'bg-[#FDFBF7] border-[#D95D39]/30 text-[#2B201A]'
           }`}>
             <BogolanFrieze color="#D95D39" className="mb-2" />
             <div className="relative inline-block mb-1">
-              <span className="font-script text-[26px] md:text-[28px] font-bold text-[#D95D39] quill-reveal leading-none">
+              <span className="font-script text-[22px] sm:text-[26px] md:text-[28px] font-bold text-[#D95D39] quill-reveal leading-none">
                 ✦ Chapitre 1 · Le Village des Origines
               </span>
               <div className="h-0.5 w-full bg-[#E9C46A] quill-underline rounded-full mt-0.5" />
             </div>
-            <h3 className="font-title text-2xl md:text-[28px] font-bold leading-tight animate-titleBreathe mt-1">
+            <h3 className="font-title text-xl sm:text-2xl md:text-[28px] font-bold leading-tight animate-titleBreathe mt-1">
               {IDENTITY_DATA.name} — L'Artisan du Web
             </h3>
             <p className="font-body text-xs md:text-sm mt-2 leading-relaxed font-medium opacity-95">
@@ -775,12 +775,12 @@ export const KirikouWorld: React.FC = () => {
             {/* Chiffres Clés */}
             <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-[#D95D39]/15 text-center">
               <div className={`p-2 rounded-xl ${atmosphere === 'night' ? 'bg-[#29263E]' : 'bg-[#FAF7F2]'}`}>
-                <div className="text-lg font-extrabold font-mono text-[#D95D39]">5+ ANS</div>
-                <div className="text-[10px] font-mono opacity-70">EXPÉRIENCE</div>
+                <div className="text-base sm:text-lg font-extrabold font-mono text-[#D95D39]">5+ ANS</div>
+                <div className="text-[9px] sm:text-[10px] font-mono opacity-70">EXPÉRIENCE</div>
               </div>
               <div className={`p-2 rounded-xl ${atmosphere === 'night' ? 'bg-[#29263E]' : 'bg-[#FAF7F2]'}`}>
-                <div className="text-lg font-extrabold font-mono text-[#2A9D8F]">15+ PROJETS</div>
-                <div className="text-[10px] font-mono opacity-70">LIVRÉS EN PRODUCTION</div>
+                <div className="text-base sm:text-lg font-extrabold font-mono text-[#2A9D8F]">15+ PROJETS</div>
+                <div className="text-[9px] sm:text-[10px] font-mono opacity-70">LIVRÉS EN PRODUCTION</div>
               </div>
             </div>
 
@@ -828,7 +828,7 @@ export const KirikouWorld: React.FC = () => {
           />
 
           {/* Projects Station Container (Guaranteed space: NEVER obscured by navbar) */}
-          <div className={`absolute bottom-[145px] left-[1050px] w-[640px] md:w-[700px] p-5 border-2 rounded-3xl shadow-xl max-h-[calc(100%-160px)] overflow-y-auto ${
+          <div className={`absolute bottom-[145px] left-[1050px] w-[320px] sm:w-[580px] md:w-[700px] p-4 sm:p-5 border-2 rounded-3xl shadow-xl max-h-[calc(100%-160px)] overflow-y-auto ${
             atmosphere === 'night'
               ? 'bg-[#1E1C2E] border-white/20 text-white'
               : 'bg-[#FDFBF7] border-[#D95D39]/30 text-[#2B201A]'
@@ -837,22 +837,22 @@ export const KirikouWorld: React.FC = () => {
             <div className="flex items-center justify-between mb-3">
               <div>
                 <div className="relative inline-block mb-1">
-                  <span className="font-script text-[26px] md:text-[28px] font-bold text-[#D95D39] quill-reveal leading-none">
+                  <span className="font-script text-[22px] sm:text-[26px] md:text-[28px] font-bold text-[#D95D39] quill-reveal leading-none">
                     ✦ Chapitre 2 · Les Créations
                   </span>
                   <div className="h-0.5 w-full bg-[#E9C46A] quill-underline rounded-full mt-0.5" />
                 </div>
-                <h3 className="font-title text-2xl md:text-[28px] font-bold leading-tight animate-titleBreathe">
+                <h3 className="font-title text-xl sm:text-2xl md:text-[28px] font-bold leading-tight animate-titleBreathe">
                   L'Allée des Créations
                 </h3>
               </div>
-              <span className="text-xs font-body font-semibold opacity-75">
+              <span className="text-[11px] sm:text-xs font-body font-semibold opacity-75 hidden xs:inline">
                 Cliquez pour ouvrir un conte
               </span>
             </div>
 
             {/* Illustrated Project Cards Grid */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
               {projects.map((proj) => (
                 <div
                   key={proj.id}
@@ -923,7 +923,7 @@ export const KirikouWorld: React.FC = () => {
           />
 
           {/* Baobab Skills Station Card (Guaranteed space: NEVER obscured by navbar) */}
-          <div className={`absolute bottom-[145px] left-[2250px] w-[520px] p-5 border-2 rounded-3xl shadow-xl max-h-[calc(100%-160px)] overflow-y-auto ${
+          <div className={`absolute bottom-[145px] left-[2250px] w-[320px] sm:w-[480px] md:w-[520px] p-4 sm:p-5 border-2 rounded-3xl shadow-xl max-h-[calc(100%-160px)] overflow-y-auto ${
             atmosphere === 'night'
               ? 'bg-[#1E1C2E] border-white/20 text-white'
               : 'bg-[#FDFBF7] border-[#D95D39]/30 text-[#2B201A]'
@@ -932,12 +932,12 @@ export const KirikouWorld: React.FC = () => {
             <div className="flex items-center justify-between mb-3">
               <div>
                 <div className="relative inline-block mb-1">
-                  <span className="font-script text-[26px] md:text-[28px] font-bold text-[#D95D39] quill-reveal leading-none">
+                  <span className="font-script text-[22px] sm:text-[26px] md:text-[28px] font-bold text-[#D95D39] quill-reveal leading-none">
                     ✦ Chapitre 3 · L’Arbre des Savoirs
                   </span>
                   <div className="h-0.5 w-full bg-[#E9C46A] quill-underline rounded-full mt-0.5" />
                 </div>
-                <h3 className="font-title text-2xl md:text-[28px] font-bold leading-tight animate-titleBreathe">
+                <h3 className="font-title text-xl sm:text-2xl md:text-[28px] font-bold leading-tight animate-titleBreathe">
                   Le Grand Baobab
                 </h3>
               </div>
@@ -1043,7 +1043,7 @@ export const KirikouWorld: React.FC = () => {
           />
 
           {/* Contact Station Card (Guaranteed space: NEVER obscured by navbar) */}
-          <div className={`absolute bottom-[145px] left-[3220px] w-[450px] p-5 border-2 rounded-3xl shadow-xl max-h-[calc(100%-160px)] overflow-y-auto ${
+          <div className={`absolute bottom-[145px] left-[3220px] w-[320px] sm:w-[400px] md:w-[450px] p-4 sm:p-5 border-2 rounded-3xl shadow-xl max-h-[calc(100%-160px)] overflow-y-auto ${
             atmosphere === 'night'
               ? 'bg-[#1E1C2E] border-white/20 text-white'
               : 'bg-[#FDFBF7] border-[#D95D39]/30 text-[#2B201A]'
@@ -1052,12 +1052,12 @@ export const KirikouWorld: React.FC = () => {
             <div className="flex items-center justify-between mb-3">
               <div>
                 <div className="relative inline-block mb-1">
-                  <span className="font-script text-[26px] md:text-[28px] font-bold text-[#D95D39] quill-reveal leading-none">
+                  <span className="font-script text-[22px] sm:text-[26px] md:text-[28px] font-bold text-[#D95D39] quill-reveal leading-none">
                     ✦ Chapitre 4 · L’Espace de Dialogue
                   </span>
                   <div className="h-0.5 w-full bg-[#E9C46A] quill-underline rounded-full mt-0.5" />
                 </div>
-                <h3 className="font-title text-2xl md:text-[28px] font-bold leading-tight animate-titleBreathe">
+                <h3 className="font-title text-xl sm:text-2xl md:text-[28px] font-bold leading-tight animate-titleBreathe">
                   L’Arbre à Palabre
                 </h3>
               </div>
@@ -1065,22 +1065,22 @@ export const KirikouWorld: React.FC = () => {
             </div>
 
             {contactSent ? (
-              <div className="p-5 text-center bg-[#FAF7F2] rounded-2xl border border-[#2A9D8F]/30 space-y-2 text-[#2B201A]">
-                <CheckCircle2 className="w-10 h-10 text-[#2A9D8F] mx-auto" />
-                <h4 className="font-extrabold text-base">Message Transmis !</h4>
+              <div className="p-4 sm:p-5 text-center bg-[#FAF7F2] rounded-2xl border border-[#2A9D8F]/30 space-y-2 text-[#2B201A]">
+                <CheckCircle2 className="w-8 h-8 sm:w-10 sm:h-10 text-[#2A9D8F] mx-auto" />
+                <h4 className="font-extrabold text-sm sm:text-base">Message Transmis !</h4>
                 <p className="text-xs font-medium opacity-85">
                   Merci {contactName}. Votre message a bien été envoyé. Junes AGASSOUNON vous répondra dans les 24 heures.
                 </p>
                 <button
                   onClick={() => setContactSent(false)}
-                  className="mt-3 px-4 py-1.5 text-xs font-mono font-bold bg-[#D95D39] text-white rounded-xl"
+                  className="mt-2.5 px-4 py-1.5 text-xs font-mono font-bold bg-[#D95D39] text-white rounded-xl"
                 >
                   Envoyer un autre message
                 </button>
               </div>
             ) : (
               <form onSubmit={handleContactSubmit} className="space-y-2.5">
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <input
                     type="text"
                     required
@@ -1189,7 +1189,7 @@ export const KirikouWorld: React.FC = () => {
           </div>
 
           {/* Epilogue Celebration Card */}
-          <div className={`absolute bottom-[145px] left-[3820px] w-[440px] p-5 border-2 rounded-3xl shadow-xl max-h-[calc(100%-160px)] overflow-y-auto ${
+          <div className={`absolute bottom-[145px] left-[3820px] w-[320px] sm:w-[400px] md:w-[440px] p-4 sm:p-5 border-2 rounded-3xl shadow-xl max-h-[calc(100%-160px)] overflow-y-auto ${
             atmosphere === 'night'
               ? 'bg-[#1E1C2E] border-white/20 text-white'
               : 'bg-[#FDFBF7] border-[#D95D39]/30 text-[#2B201A]'
@@ -1198,12 +1198,12 @@ export const KirikouWorld: React.FC = () => {
             <div className="flex items-center justify-between mb-3">
               <div>
                 <div className="relative inline-block mb-1">
-                  <span className="font-script text-[26px] md:text-[28px] font-bold text-[#2A9D8F] quill-reveal leading-none">
+                  <span className="font-script text-[22px] sm:text-[26px] md:text-[28px] font-bold text-[#2A9D8F] quill-reveal leading-none">
                     ✦ Chapitre 5 · L’Épilogue du Conte
                   </span>
                   <div className="h-0.5 w-full bg-[#E9C46A] quill-underline rounded-full mt-0.5" />
                 </div>
-                <h3 className="font-title text-2xl md:text-[28px] font-bold leading-tight animate-titleBreathe flex items-center gap-1.5">
+                <h3 className="font-title text-xl sm:text-2xl md:text-[28px] font-bold leading-tight animate-titleBreathe flex items-center gap-1.5">
                   <span>La Célébration Finale</span>
                   <Sparkles className="w-5 h-5 text-[#E9C46A]" />
                 </h3>
@@ -1425,26 +1425,27 @@ export const KirikouWorld: React.FC = () => {
       {/* 5. SACRED COWRIE COMPLETION REWARD MODAL                 */}
       {/* ======================================================== */}
       {showCowrieSuccess && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 animate-fadeIn font-sans">
-          <div className="bg-[#FDFBF7] border-2 border-[#E9C46A] p-6 md:p-8 rounded-3xl max-w-md w-full text-center shadow-2xl text-[#2B201A] relative">
-            <div className="w-16 h-16 mx-auto mb-3 bg-[#FAF0CA] rounded-full flex items-center justify-center shadow-md border-2 border-[#E9C46A] animate-bounce text-[#D95D39]">
-              <Gem className="w-8 h-8" />
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-sm animate-fadeIn font-sans">
+          <div className="bg-[#FDFBF7] border-t-2 sm:border-2 border-[#E9C46A] p-4 sm:p-8 rounded-t-[26px] sm:rounded-3xl max-w-md w-full text-center shadow-2xl text-[#2B201A] relative">
+            <div className="w-10 h-1 bg-[#E9C46A]/40 rounded-full mx-auto mb-3 sm:hidden shrink-0" />
+            <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-2.5 sm:mb-3 bg-[#FAF0CA] rounded-full flex items-center justify-center shadow-md border-2 border-[#E9C46A] animate-bounce text-[#D95D39]">
+              <Gem className="w-6 h-6 sm:w-8 sm:h-8" />
             </div>
-            <h3 className="text-xl md:text-2xl font-extrabold text-[#D95D39] mb-1">
+            <h3 className="text-lg sm:text-2xl font-extrabold text-[#D95D39] mb-1">
               Sagesse de l'Artisan Débloquée !
             </h3>
-            <p className="text-xs font-mono font-bold text-[#2A9D8F] mb-3 uppercase tracking-wider">
+            <p className="text-[10px] sm:text-xs font-mono font-bold text-[#2A9D8F] mb-2.5 sm:mb-3 uppercase tracking-wider">
               Quête des 4 Cauris Sacrés accomplie (4/4)
             </p>
-            <div className="text-xs md:text-sm font-medium leading-relaxed bg-[#FAF7F2] p-4 rounded-2xl border border-[#D95D39]/20 mb-5 text-[#3D2619]">
+            <div className="text-xs sm:text-sm font-medium leading-relaxed bg-[#FAF7F2] p-3 sm:p-4 rounded-2xl border border-[#D95D39]/20 mb-4 sm:mb-5 text-[#3D2619]">
               « Le travail soigné se voit dans les détails invisibles à ceux qui se pressent. En explorant ce monde jusqu'au bout, vous avez démontré la curiosité d'un véritable partenaire créatif. »
-              <div className="mt-2.5 font-bold font-mono text-xs text-[#D95D39]">
+              <div className="mt-2 font-bold font-mono text-[11px] sm:text-xs text-[#D95D39]">
                 — JUNES AGASSOUNON, Développeur Web &amp; Graphiste
               </div>
             </div>
             <button
               onClick={() => setShowCowrieSuccess(false)}
-              className="w-full py-3 bg-gradient-to-r from-[#D95D39] to-[#E76F51] hover:from-[#E76F51] hover:to-[#E9C46A] text-white font-mono font-bold text-xs rounded-2xl shadow-md transition-all active:scale-95"
+              className="w-full py-2.5 sm:py-3 bg-gradient-to-r from-[#D95D39] to-[#E76F51] hover:from-[#E76F51] hover:to-[#E9C46A] text-white font-mono font-bold text-xs rounded-xl sm:rounded-2xl shadow-md transition-all active:scale-95"
             >
               REPRENDRE LA VISITE
             </button>

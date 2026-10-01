@@ -384,24 +384,27 @@ export const AdminDashboardModal: React.FC = () => {
   });
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/80 animate-fadeIn font-sans">
-      <div className="relative w-full max-w-5xl max-h-[92vh] h-[92vh] bg-[#FDFBF7] border-2 border-[#D95D39]/30 rounded-3xl shadow-2xl overflow-hidden flex flex-col text-[#2B201A]">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 md:p-6 bg-black/85 backdrop-blur-sm animate-fadeIn font-sans">
+      <div className="relative w-full max-w-5xl max-h-[92vh] h-[92vh] bg-[#FDFBF7] border-t-2 sm:border-2 border-[#D95D39]/30 rounded-t-[26px] sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col text-[#2B201A]">
+        {/* Mobile Sheet Drag Handle */}
+        <div className="w-10 h-1 bg-[#D95D39]/30 rounded-full mx-auto my-1.5 sm:hidden shrink-0" />
+
         {/* Header */}
-        <div className="flex items-center justify-between px-5 md:px-6 py-3.5 border-b border-[#D95D39]/20 bg-[#FAF7F2]">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#D95D39] to-[#E76F51] text-white flex items-center justify-center font-mono font-bold shadow-md">
-              <Database className="w-5 h-5" />
+        <div className="flex items-center justify-between px-3.5 sm:px-6 py-2.5 sm:py-3.5 border-b border-[#D95D39]/20 bg-[#FAF7F2] shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#D95D39] to-[#E76F51] text-white flex items-center justify-center font-mono font-bold shadow-md shrink-0">
+              <Database className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-base md:text-lg font-extrabold text-[#2B201A] tracking-wide">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <h2 className="text-xs sm:text-base md:text-lg font-extrabold text-[#2B201A] tracking-wide truncate">
                   CONSOLE D'ADMINISTRATION CMS
                 </h2>
-                <span className="px-2 py-0.5 text-[9px] font-mono font-bold uppercase bg-[#D95D39]/15 text-[#D95D39] rounded-full">
-                  CRUD COMPLET
+                <span className="px-1.5 py-0.2 text-[8px] sm:text-[9px] font-mono font-bold uppercase bg-[#D95D39]/15 text-[#D95D39] rounded-full shrink-0">
+                  CRUD
                 </span>
               </div>
-              <p className="text-xs font-mono text-[#7A583A]">
+              <p className="text-[10px] sm:text-xs font-mono text-[#7A583A] truncate hidden sm:block">
                 Gestion des Projets, Compétences, Messages &amp; Sauvegardes
               </p>
             </div>
@@ -409,9 +412,10 @@ export const AdminDashboardModal: React.FC = () => {
 
           <button
             onClick={handleClose}
-            className="p-2 text-[#7A583A] hover:text-[#2B201A] rounded-xl hover:bg-[#F3EDE2] transition-colors"
+            className="p-1.5 sm:p-2 text-[#7A583A] hover:text-[#2B201A] rounded-xl hover:bg-[#F3EDE2] transition-colors active:scale-95 shrink-0"
+            title="Fermer la console"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
 

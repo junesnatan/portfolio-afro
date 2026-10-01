@@ -383,38 +383,42 @@ export const TravelerPassportModal: React.FC<TravelerPassportModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-none animate-fadeIn select-none font-sans">
-      <div className="relative w-full max-w-4xl bg-[#FAF7F2] border-2 border-[#D95D39]/30 rounded-3xl p-5 md:p-7 shadow-2xl overflow-hidden text-[#2B201A] max-h-[95vh] overflow-y-auto">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 md:p-6 bg-black/85 backdrop-blur-sm animate-fadeIn select-none font-sans">
+      <div className="relative w-full max-w-4xl max-h-[92vh] sm:max-h-[90vh] bg-[#FAF7F2] border-t-2 sm:border-2 border-[#D95D39]/30 rounded-t-[26px] sm:rounded-3xl p-3.5 sm:p-6 md:p-7 shadow-2xl overflow-y-auto text-[#2B201A] flex flex-col">
+        {/* Mobile Sheet Drag Handle */}
+        <div className="w-10 h-1 bg-[#D95D39]/30 rounded-full mx-auto mb-2 sm:hidden shrink-0" />
+
         {/* Close Button */}
         <button
           onClick={() => {
             playInteract();
             onClose();
           }}
-          className="absolute top-4 right-4 p-2 rounded-2xl bg-black/5 hover:bg-[#D95D39] hover:text-white transition-all"
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 sm:p-2 rounded-xl bg-black/5 hover:bg-[#D95D39] hover:text-white transition-all active:scale-95"
+          title="Fermer le passeport"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
 
         {/* Modal Header */}
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#D95D39] to-[#E9C46A] text-white flex items-center justify-center shadow-md">
-            <Award className="w-6 h-6 text-[#FAF0CA]" />
+        <div className="flex items-center gap-2.5 sm:gap-3 mb-3 sm:mb-4 pr-8">
+          <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-[#D95D39] to-[#E9C46A] text-white flex items-center justify-center shadow-md shrink-0">
+            <Award className="w-5 h-5 sm:w-6 sm:h-6 text-[#FAF0CA]" />
           </div>
-          <div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#D95D39]">
+          <div className="min-w-0">
+            <span className="text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-wider text-[#D95D39] block truncate">
               RÉCOMPENSE &amp; SOUVENIR OFFICIEL
             </span>
-            <h3 className="text-xl md:text-2xl font-extrabold">
-              Le Passeport du Voyageur de la Savane
+            <h3 className="text-sm sm:text-xl md:text-2xl font-extrabold truncate">
+              Le Passeport du Voyageur
             </h3>
           </div>
         </div>
 
         {/* Customization Name Input */}
-        <div className="p-3.5 bg-[#FFFDF7] border border-[#D95D39]/20 rounded-2xl mb-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <label className="text-xs font-mono font-bold text-[#8C4A28] flex items-center gap-2">
-            <span>Personnaliser avec votre nom ou société :</span>
+        <div className="p-2.5 sm:p-3.5 bg-[#FFFDF7] border border-[#D95D39]/20 rounded-xl sm:rounded-2xl mb-3 sm:mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 shrink-0">
+          <label className="text-[11px] sm:text-xs font-mono font-bold text-[#8C4A28] flex items-center gap-1.5">
+            <span>Personnaliser avec votre nom :</span>
           </label>
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <input
@@ -422,63 +426,63 @@ export const TravelerPassportModal: React.FC<TravelerPassportModalProps> = ({
               value={visitorName}
               onChange={(e) => setVisitorName(e.target.value)}
               placeholder="Votre Nom ou Entreprise..."
-              className="px-3.5 py-1.5 border border-[#D95D39]/30 rounded-xl text-xs font-mono font-bold focus:outline-none focus:border-[#D95D39] bg-white w-full sm:w-64"
+              className="px-3 py-1.5 border border-[#D95D39]/30 rounded-xl text-xs font-mono font-bold focus:outline-none focus:border-[#D95D39] bg-white flex-1 sm:w-64"
             />
             <button
               onClick={() => {
                 playInteract();
                 drawPassport();
               }}
-              className="p-2 rounded-xl bg-[#FAF0CA] hover:bg-[#F4D35E] text-[#8C4A28] transition-all"
+              className="p-2 rounded-xl bg-[#FAF0CA] hover:bg-[#F4D35E] text-[#8C4A28] transition-all active:scale-95 shrink-0"
               title="Régénérer le Sceau Bogolan"
             >
-              <RefreshCw className="w-4 h-4" />
+              <RefreshCw className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
 
         {/* Canvas Display */}
-        <div className="w-full overflow-x-auto rounded-2xl border-2 border-[#D95D39]/30 shadow-inner bg-white flex justify-center p-2 mb-5">
+        <div className="w-full rounded-xl sm:rounded-2xl border border-[#D95D39]/30 shadow-inner bg-white flex justify-center p-1 sm:p-2 mb-3 sm:mb-5">
           <canvas
             ref={canvasRef}
-            className="w-full max-w-[800px] h-auto rounded-xl shadow-md"
+            className="w-full max-w-[800px] h-auto rounded-lg sm:rounded-xl shadow-sm"
             style={{ aspectRatio: '840 / 540' }}
           />
         </div>
 
         {/* Action Buttons: Download, LinkedIn, Share */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 shrink-0 mt-auto">
           {/* Download PNG Button */}
           <button
             onClick={handleDownload}
-            className="py-3 px-4 bg-gradient-to-r from-[#D95D39] to-[#E76F51] hover:opacity-95 text-white font-mono font-bold text-xs rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-95 whitespace-nowrap"
+            className="py-2.5 sm:py-3 px-4 bg-gradient-to-r from-[#D95D39] to-[#E76F51] hover:opacity-95 text-white font-mono font-bold text-[11px] sm:text-xs rounded-xl sm:rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-95 whitespace-nowrap"
           >
-            <Download className="w-4 h-4" />
-            <span>TÉLÉCHARGER (PNG)</span>
+            <Download className="w-3.5 h-3.5" />
+            <span>TÉLÉCHARGER LE PASSEPORT (PNG)</span>
           </button>
 
           {/* Share on LinkedIn Button */}
           <button
             onClick={handleShareLinkedIn}
-            className="py-3 px-4 bg-[#0A66C2] hover:bg-[#084e96] text-white font-mono font-bold text-xs rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-95 whitespace-nowrap"
+            className="py-2.5 sm:py-3 px-4 bg-[#0A66C2] hover:bg-[#084e96] text-white font-mono font-bold text-[11px] sm:text-xs rounded-xl sm:rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-95 whitespace-nowrap"
           >
-            <Share2 className="w-4 h-4" />
-            <span>PARTAGER LINKEDIN</span>
+            <Share2 className="w-3.5 h-3.5" />
+            <span>PARTAGER SUR LINKEDIN</span>
           </button>
 
           {/* Copy Link Button */}
           <button
             onClick={handleCopyLink}
-            className="py-3 px-4 bg-[#2A9D8F] hover:bg-[#218175] text-white font-mono font-bold text-xs rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-95 whitespace-nowrap"
+            className="py-2.5 sm:py-3 px-4 bg-[#2A9D8F] hover:bg-[#218175] text-white font-mono font-bold text-[11px] sm:text-xs rounded-xl sm:rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-95 whitespace-nowrap"
           >
             {hasCopied ? (
               <>
-                <Check className="w-4 h-4 text-[#FAF0CA]" />
+                <Check className="w-3.5 h-3.5 text-[#FAF0CA]" />
                 <span>LIEN COPIÉ !</span>
               </>
             ) : (
               <>
-                <Copy className="w-4 h-4" />
+                <Copy className="w-3.5 h-3.5" />
                 <span>COPIER LE LIEN</span>
               </>
             )}
