@@ -3,7 +3,12 @@ import { KirikouWorld } from '@/kirikou/KirikouWorld';
 import { LoadingScreen } from './LoadingScreen';
 
 export const App: React.FC = () => {
-  const [isLoading, setIsLoading] = useState(true);
+  const isAdminRoute =
+    typeof window !== 'undefined' &&
+    (window.location.pathname.toLowerCase().startsWith('/admin') ||
+      window.location.hash.toLowerCase() === '#admin');
+
+  const [isLoading, setIsLoading] = useState(!isAdminRoute);
 
   return (
     <div className="relative w-full h-full overflow-hidden bg-[#FAF7F2]">

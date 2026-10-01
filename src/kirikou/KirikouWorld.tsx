@@ -43,7 +43,6 @@ import {
   Sun,
   Sunset,
   Moon,
-  ShieldCheck,
   RotateCcw,
   Award,
   Home,
@@ -98,8 +97,6 @@ export const KirikouWorld: React.FC = () => {
   const isAdminOpen = useUIStore((s) => s.isAdminOpen);
   const openAdminModal = useUIStore((s) => s.openAdminModal);
   const addAdminMessage = useUIStore((s) => s.addAdminMessage);
-  const adminMessages = useUIStore((s) => s.adminMessages);
-  const unreadAdminCount = adminMessages.filter((m) => !m.read).length;
 
   // Dynamic Portfolio Data (Projects & Skills from CRUD Store)
   const projects = useDataStore((s) => s.projects);
@@ -264,10 +261,78 @@ export const KirikouWorld: React.FC = () => {
     }
   };
 
-  // Keyboard navigation (Left / Right arrows, Space to Jump, Ctrl+Shift+A for Admin)
+  // Support accessing admin via /admin or /#admin route
+  useEffect(() => {
+    const checkAdminRoute = () => {
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      if (path === '/admin' || path.startsWith('/admin/') || hash === '#admin') {
+        openAdminModal();
+      }
+    };
+
+    checkAdminRoute();
+
+    window.addEventListener('popstate', checkAdminRoute);
+    window.addEventListener('hashchange', checkAdminRoute);
+
+    return () => {
+      window.removeEventListener('popstate', checkAdminRoute);
+      window.removeEventListener('hashchange', checkAdminRoute);
+    };
+  }, [openAdminModal]);
+
+  // Clean URL when admin modal is closed
+  useEffect(() => {
+    if (!isAdminOpen) {
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      if (path === '/admin' || path.startsWith('/admin/') || hash === '#admin') {
+        window.history.replaceState({}, '', '/');
+      }
+    }
+  }, [isAdminOpen]);
+
+  // Natural scroll reflex: convert vertical scroll (mouse wheel / trackpad down) into horizontal progression
+  // Immediately starts showing the world and advancing through the chapters
+  useEffect(() => {
+    const handleWheel = (e: WheelEvent) => {
+      // Don't intercept if any modal is currently open
+      if (selectedProject || isDossierOpen || isAdminOpen || isCalaoTourOpen || isPassportOpen) {
+        return;
+      }
+
+      // Check if mouse is hovering an element that has vertical overflow (e.g. scrollable card description)
+      const target = e.target as HTMLElement | null;
+      const scrollableParent = target?.closest('.overflow-y-auto, textarea') as HTMLElement | null;
+      if (scrollableParent && scrollableParent.scrollHeight > scrollableParent.clientHeight) {
+        const isAtTop = scrollableParent.scrollTop <= 0 && e.deltaY < 0;
+        const isAtBottom =
+          scrollableParent.scrollTop + scrollableParent.clientHeight >= scrollableParent.scrollHeight - 2 &&
+          e.deltaY > 0;
+        if (!isAtTop && !isAtBottom) {
+          return; // Let internal card vertical scroll proceed
+        }
+      }
+
+      if (e.deltaY !== 0 && scrollContainerRef.current) {
+        e.preventDefault();
+        initAmbient(); // Unlocks ambient sound on first scroll
+        const multiplier = e.deltaMode === 1 ? 35 : 1;
+        scrollContainerRef.current.scrollLeft += e.deltaY * multiplier;
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+    };
+  }, [selectedProject, isDossierOpen, isAdminOpen, isCalaoTourOpen, isPassportOpen, initAmbient]);
+
+  // Keyboard navigation (Left / Right / Down / Up arrows, Space to Jump, Ctrl+Shift+A for Admin)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Global shortcut for Admin Console (Ctrl+Shift+A or Cmd+Shift+A)
+      // Global secret shortcut for Admin Console (Ctrl+Shift+A or Cmd+Shift+A)
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
         e.preventDefault();
         openAdminModal();
@@ -275,9 +340,23 @@ export const KirikouWorld: React.FC = () => {
       }
 
       if (selectedProject || isDossierOpen || isAdminOpen) return;
-      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+      if (
+        e.key === 'ArrowRight' ||
+        e.key === 'd' ||
+        e.key === 'D' ||
+        e.key === 'ArrowDown' ||
+        e.key === 'PageDown'
+      ) {
         goToChapter(Math.min(4, currentChapter + 1));
-      } else if (e.key === 'ArrowLeft' || e.key === 'q' || e.key === 'a' || e.key === 'Q' || e.key === 'A') {
+      } else if (
+        e.key === 'ArrowLeft' ||
+        e.key === 'q' ||
+        e.key === 'a' ||
+        e.key === 'Q' ||
+        e.key === 'A' ||
+        e.key === 'ArrowUp' ||
+        e.key === 'PageUp'
+      ) {
         goToChapter(Math.max(0, currentChapter - 1));
       } else if (e.key === ' ' || e.code === 'Space') {
         e.preventDefault();
@@ -473,27 +552,6 @@ export const KirikouWorld: React.FC = () => {
             <Gem className="w-3.5 h-3.5 text-[#E9C46A]" />
             <span>{collectedCowries.length}/4</span>
             <span className="text-[10px] opacity-75 hidden md:inline">Cauris</span>
-          </button>
-
-          {/* Admin CMS Trigger Button */}
-          <button
-            onClick={() => {
-              playInteract();
-              openAdminModal();
-            }}
-            className={`relative p-2 sm:p-2.5 border rounded-xl sm:rounded-2xl shadow-sm transition-all shrink-0 active:scale-95 ${
-              atmosphere === 'night'
-                ? 'bg-[#23203C] border-white/10 text-[#E9C46A] hover:bg-[#2F2B4E]'
-                : 'bg-[#FDFBF7] border-[#D95D39]/25 text-[#2B201A] hover:bg-[#F3EDE2]'
-            }`}
-            title="Console d'Administration CMS (Raccourci : Ctrl+Shift+A)"
-          >
-            <ShieldCheck className="w-4 h-4 text-[#2A9D8F]" />
-            {unreadAdminCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#D95D39] text-white text-[9px] font-mono font-bold rounded-full flex items-center justify-center animate-pulse">
-                {unreadAdminCount}
-              </span>
-            )}
           </button>
 
           {/* Calao Guide 60s Tour Button (Visible on md+) */}
@@ -1092,22 +1150,6 @@ export const KirikouWorld: React.FC = () => {
                   </a>
                 ))}
               </div>
-            </div>
-
-            {/* Admin Console Direct Link */}
-            <div className="mt-2.5 pt-2 border-t border-dashed border-[#D95D39]/10 text-center">
-              <button
-                type="button"
-                onClick={() => {
-                  playInteract();
-                  openAdminModal();
-                }}
-                className="text-[10px] font-mono opacity-50 hover:opacity-100 hover:text-[#D95D39] transition-all inline-flex items-center gap-1.5"
-                title="Accès réservé - Mot de passe requis (admin)"
-              >
-                <ShieldCheck className="w-3 h-3 text-[#2A9D8F]" />
-                <span>Console Administrateur · Espace Studio JA</span>
-              </button>
             </div>
 
             {/* Proceed to Epilogue & Celebration */}
