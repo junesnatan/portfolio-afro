@@ -29,6 +29,7 @@ import {
   Check,
 } from 'lucide-react';
 import { extractProjectFromText } from '@/utils/projectExtractor';
+import { isFirebaseConfigured, FirebaseService } from '@/database/firebaseClient';
 
 export const AdminDashboardModal: React.FC = () => {
   const isOpen = useUIStore((s) => s.isAdminOpen);
@@ -195,6 +196,17 @@ export const AdminDashboardModal: React.FC = () => {
     if (!quickExtractText.trim()) return;
     handleOpenCreateProject();
     handleAutoExtract(quickExtractText);
+  };
+
+  const handleSeedFirebase = async () => {
+    playInteract();
+    const res = await FirebaseService.seedDefaultProjects();
+    if (res.success) {
+      playSuccess();
+      showNotification('FIREBASE SYNCHRONISÉ', `${res.count} projets ont été synchronisés dans Firestore.`);
+    } else {
+      showNotification('ERREUR FIREBASE', 'Vérifiez la configuration des variables dans .env');
+    }
   };
 
   const handleOpenCreateProject = () => {
@@ -651,8 +663,10 @@ export const AdminDashboardModal: React.FC = () => {
                     </h4>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs font-mono">
                       <div className="p-2.5 bg-[#FAF7F2] rounded-xl border border-[#D95D39]/10">
-                        <span className="text-gray-500">Persistance :</span>
-                        <div className="font-bold text-emerald-600">LocalStorage Active</div>
+                        <span className="text-gray-500">Base Firebase :</span>
+                        <div className={`font-bold ${isFirebaseConfigured() ? 'text-emerald-600' : 'text-amber-600'}`}>
+                          {isFirebaseConfigured() ? 'Cloud Firestore Actif' : 'Prêt (Mode Local)'}
+                        </div>
                       </div>
                       <div className="p-2.5 bg-[#FAF7F2] rounded-xl border border-[#D95D39]/10">
                         <span className="text-gray-500">Moteur Audio :</span>
@@ -660,7 +674,7 @@ export const AdminDashboardModal: React.FC = () => {
                       </div>
                       <div className="p-2.5 bg-[#FAF7F2] rounded-xl border border-[#D95D39]/10">
                         <span className="text-gray-500">Mise à jour live :</span>
-                        <div className="font-bold text-[#2A9D8F]">Instantanée</div>
+                        <div className="font-bold text-[#2A9D8F]">Temps Réel</div>
                       </div>
                       <div className="p-2.5 bg-[#FAF7F2] rounded-xl border border-[#D95D39]/10">
                         <span className="text-gray-500">Quête Cauris :</span>
@@ -1067,6 +1081,37 @@ export const AdminDashboardModal: React.FC = () => {
                       <Upload className="w-3.5 h-3.5" />
                       <span>IMPORTER ET METTRE À JOUR</span>
                     </button>
+                  </div>
+
+                  {/* Firebase Firestore Cloud Sync Box */}
+                  <div className="p-6 bg-white border border-[#D95D39]/15 rounded-2xl space-y-3 shadow-sm">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Database className="w-5 h-5 text-[#D95D39]" />
+                        <h3 className="text-sm font-bold text-[#2B201A]">Synchronisation Firebase Cloud Firestore</h3>
+                      </div>
+                      <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
+                        isFirebaseConfigured()
+                          ? 'bg-emerald-100 text-emerald-700 border border-emerald-300'
+                          : 'bg-amber-100 text-amber-700 border border-amber-300'
+                      }`}>
+                        {isFirebaseConfigured() ? 'CONNECTÉ' : 'MODE LOCAL'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-600 font-mono leading-relaxed">
+                      {isFirebaseConfigured()
+                        ? 'Firebase est actif ! Vos ajouts et modifications de projets sont automatiquement répliqués en temps réel sur Cloud Firestore.'
+                        : 'Pour activer la synchronisation Cloud, ajoutez vos variables VITE_FIREBASE_* dans le fichier .env (consultez .env.example). En attendant, vos données sont conservées localement dans votre navigateur.'}
+                    </p>
+                    {isFirebaseConfigured() && (
+                      <button
+                        onClick={handleSeedFirebase}
+                        className="px-4 py-2 bg-gradient-to-r from-[#D95D39] to-[#E76F51] hover:from-[#E76F51] hover:to-[#E9C46A] text-white font-mono font-bold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-1.5"
+                      >
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>INITIALISER / POUSSER LES PROJETS VERS FIRESTORE</span>
+                      </button>
+                    )}
                   </div>
 
                   {/* Reset Box */}

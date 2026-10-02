@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { ProjectData, SkillData } from '@/types';
 import { PROJECTS_DATA, SKILLS_DATA } from '@/database/data';
+import { FirebaseService, isFirebaseConfigured } from '@/database/firebaseClient';
 
 const STORAGE_PROJECTS_KEY = 'ja_portfolio_projects_v2';
 const STORAGE_SKILLS_KEY = 'ja_portfolio_skills_v2';
@@ -34,6 +35,7 @@ function loadSkillsFromStorage(): SkillData[] {
 interface DataStore {
   projects: ProjectData[];
   skills: SkillData[];
+  isCloudConnected: boolean;
 
   // Projects CRUD
   addProject: (project: ProjectData) => void;
@@ -48,11 +50,13 @@ interface DataStore {
   // Global actions
   resetToDefault: () => void;
   importAllData: (data: { projects?: ProjectData[]; skills?: SkillData[] }) => void;
+  initCloudSync: () => void;
 }
 
 export const useDataStore = create<DataStore>((set, get) => ({
   projects: loadProjectsFromStorage(),
   skills: loadSkillsFromStorage(),
+  isCloudConnected: isFirebaseConfigured(),
 
   addProject: (project) => {
     const next = [project, ...get().projects];
@@ -62,6 +66,13 @@ export const useDataStore = create<DataStore>((set, get) => ({
       console.error(e);
     }
     set({ projects: next });
+
+    // Cloud Firestore Sync
+    if (isFirebaseConfigured()) {
+      FirebaseService.saveProject(project).catch((err) => {
+        console.warn('Could not sync new project to Firebase:', err);
+      });
+    }
   },
 
   updateProject: (id, updated) => {
@@ -72,6 +83,16 @@ export const useDataStore = create<DataStore>((set, get) => ({
       console.error(e);
     }
     set({ projects: next });
+
+    // Cloud Firestore Sync
+    if (isFirebaseConfigured()) {
+      const target = next.find((p) => p.id === id);
+      if (target) {
+        FirebaseService.saveProject(target).catch((err) => {
+          console.warn('Could not sync updated project to Firebase:', err);
+        });
+      }
+    }
   },
 
   deleteProject: (id) => {
@@ -82,6 +103,13 @@ export const useDataStore = create<DataStore>((set, get) => ({
       console.error(e);
     }
     set({ projects: next });
+
+    // Cloud Firestore Sync
+    if (isFirebaseConfigured()) {
+      FirebaseService.deleteProject(id).catch((err) => {
+        console.warn('Could not delete project from Firebase:', err);
+      });
+    }
   },
 
   addSkill: (skill) => {
@@ -134,5 +162,40 @@ export const useDataStore = create<DataStore>((set, get) => ({
       console.error(e);
     }
     set({ projects: nextProjects, skills: nextSkills });
+
+    if (isFirebaseConfigured() && data.projects) {
+      for (const p of nextProjects) {
+        FirebaseService.saveProject(p).catch(console.warn);
+      }
+    }
+  },
+
+  initCloudSync: () => {
+    if (!isFirebaseConfigured()) return;
+    set({ isCloudConnected: true });
+
+    // Initial load from Firestore
+    FirebaseService.getProjects().then((cloudProjects) => {
+      if (cloudProjects && cloudProjects.length > 0) {
+        try {
+          localStorage.setItem(STORAGE_PROJECTS_KEY, JSON.stringify(cloudProjects));
+        } catch (e) {
+          console.error(e);
+        }
+        set({ projects: cloudProjects });
+      }
+    });
+
+    // Real-time listener
+    FirebaseService.subscribeToProjects((cloudProjects) => {
+      if (cloudProjects && cloudProjects.length > 0) {
+        set({ projects: cloudProjects });
+      }
+    });
   },
 }));
+
+// Initialize cloud sync on load
+if (typeof window !== 'undefined') {
+  useDataStore.getState().initCloudSync();
+}
