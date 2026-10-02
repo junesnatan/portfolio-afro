@@ -20,11 +20,8 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          'three-vendor': ['three'],
-          'r3f-vendor': ['@react-three/fiber', '@react-three/drei'],
-          'physics-vendor': ['@react-three/rapier'],
           'react-vendor': ['react', 'react-dom'],
-          'ui-vendor': ['lucide-react', 'zustand', 'gsap'],
+          'ui-vendor': ['lucide-react', 'zustand'],
         },
       },
     },
