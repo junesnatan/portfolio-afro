@@ -13,42 +13,54 @@ import {
   serverTimestamp,
   Firestore,
 } from 'firebase/firestore';
+import { getAnalytics, isSupported, Analytics } from 'firebase/analytics';
 import { ProjectData } from '@/types';
 import { PROJECTS_DATA } from './data';
 
 // ==========================================
-// FIREBASE CONFIGURATION
+// FIREBASE CONFIGURATION (PROSPECTION-A1082)
 // ==========================================
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || '',
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || '',
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || '',
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '',
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || '',
+export const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyDmJJpauN5Ge7pVelSmyx3gmXNqFIbmrmc",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "prospection-a1082.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "prospection-a1082",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "prospection-a1082.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "149664611365",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:149664611365:web:3cdedbdbcb1c8bd23b53cc",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-545BS6RX4Y",
 };
 
 export const isFirebaseConfigured = (): boolean => {
   return (
-    !!import.meta.env.VITE_FIREBASE_API_KEY &&
-    !!import.meta.env.VITE_FIREBASE_PROJECT_ID &&
-    import.meta.env.VITE_FIREBASE_PROJECT_ID !== 'your-project-id'
+    !!firebaseConfig.apiKey &&
+    !!firebaseConfig.projectId &&
+    firebaseConfig.projectId !== 'your-project-id'
   );
 };
 
 let app: FirebaseApp | null = null;
 let db: Firestore | null = null;
+let analytics: Analytics | null = null;
 
 if (isFirebaseConfigured()) {
   try {
     app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
     db = getFirestore(app);
+
+    // Initialize Analytics if in browser and supported
+    if (typeof window !== 'undefined') {
+      isSupported().then((supported) => {
+        if (supported && app) {
+          analytics = getAnalytics(app);
+        }
+      }).catch((e) => console.debug('Firebase Analytics not supported in current environment:', e));
+    }
   } catch (err) {
     console.warn('Firebase initialization skipped or failed:', err);
   }
 }
 
-export { app, db };
+export { app, db, analytics };
 
 // ==========================================
 // FIRESTORE CRUD SERVICES
