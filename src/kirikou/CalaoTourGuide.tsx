@@ -50,7 +50,7 @@ const TOUR_STEPS: TourStep[] = [
     chapterIndex: 1,
     positionX: 1150,
     durationSeconds: 16,
-    title: 'Chapitre 2 : Les Créations',
+    title: 'Chapitre 2 : Projets & Réalisations',
     subtitle: 'Projets Majeurs en Production',
     narration:
       '« Voici ses réalisations clés : plateformes SaaS, dashboards interactifs, applications web et expériences 3D. Chaque projet répond à un besoin concret avec une architecture solide et une interface sur mesure. »',
@@ -64,7 +64,7 @@ const TOUR_STEPS: TourStep[] = [
     chapterIndex: 2,
     positionX: 2150,
     durationSeconds: 12,
-    title: 'Chapitre 3 : La Stack Technique',
+    title: 'Chapitre 3 : Compétences & Technologies',
     subtitle: 'Compétences & Maîtrise',
     narration:
       '« Côté technique, Junes s’appuie sur des standards rigoureux : 100% TypeScript strict, code propre et testé, animations fluides et architectures évolutives, faciles à maintenir dans le temps. »',
@@ -78,7 +78,7 @@ const TOUR_STEPS: TourStep[] = [
     chapterIndex: 3,
     positionX: 3050,
     durationSeconds: 10,
-    title: 'Chapitre 4 : Parlons de vos projets',
+    title: 'Chapitre 4 : Contact & Collaboration',
     subtitle: 'Collaboration & Disponibilité',
     narration:
       '« Vous avez une idée d’application, une refonte de site ou besoin d’un renfort technique ? Junes est disponible immédiatement pour vous accompagner en freelance ou en CDI. Échangeons simplement en 1 clic ! »',
@@ -92,7 +92,7 @@ const TOUR_STEPS: TourStep[] = [
     chapterIndex: 4,
     positionX: 3850,
     durationSeconds: 10,
-    title: 'Chapitre 5 : Passeport & Contact',
+    title: 'Chapitre 5 : Synthèse & Vision',
     subtitle: 'Bilan de la Visite',
     narration:
       '« La visite est terminée ! Vous pouvez maintenant télécharger son CV en PDF, enregistrer votre Passeport souvenir personnalisé ou envoyer directement un message pour démarrer une collaboration. »',

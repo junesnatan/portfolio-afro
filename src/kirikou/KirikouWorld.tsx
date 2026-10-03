@@ -47,11 +47,9 @@ import {
   Moon,
   RotateCcw,
   Award,
-  Home,
+  User,
   FolderKanban,
   FolderOpen,
-  BookOpen,
-  MessageSquare,
   Feather,
   Gem,
   Zap,
@@ -542,11 +540,11 @@ export const KirikouWorld: React.FC = () => {
   };
 
   const chapters = [
-    { num: '1', title: 'Le Village', shortTitle: 'Village', icon: Home },
-    { num: '2', title: 'Les Projets', shortTitle: 'Projets', icon: FolderKanban },
-    { num: '3', title: 'Le Baobab', shortTitle: 'Baobab', icon: BookOpen },
-    { num: '4', title: 'L’Arbre à Palabre', shortTitle: 'Palabre', icon: MessageSquare },
-    { num: '5', title: 'L’Épilogue', shortTitle: 'Épilogue', icon: Award },
+    { num: '1', title: 'Présentation & Profil', shortTitle: 'Présentation', icon: User },
+    { num: '2', title: 'Projets & Réalisations', shortTitle: 'Projets', icon: FolderKanban },
+    { num: '3', title: 'Compétences & Technologies', shortTitle: 'Compétences', icon: Code },
+    { num: '4', title: 'Contact & Collaboration', shortTitle: 'Contact', icon: Mail },
+    { num: '5', title: 'Vision & Méthodologie', shortTitle: 'Vision', icon: Sparkles },
   ];
 
   // Atmosphere sky gradients
@@ -889,7 +887,7 @@ export const KirikouWorld: React.FC = () => {
             <BogolanFrieze color="#D95D39" className="mb-2" />
             <div className="relative inline-block mb-1">
               <span className="font-script text-[22px] sm:text-[26px] md:text-[28px] font-bold text-[#D95D39] quill-reveal leading-none">
-                ✦ Chapitre 1 · Présentation &amp; Savoir-Faire
+                ✦ Chapitre 1 · Présentation &amp; Profil
               </span>
               <div className="h-0.5 w-full bg-[#E9C46A] quill-underline rounded-full mt-0.5" />
             </div>
@@ -915,9 +913,9 @@ export const KirikouWorld: React.FC = () => {
             <div className="grid grid-cols-2 gap-2 mt-3.5">
               <button
                 onClick={() => goToChapter(1)}
-                className="py-2.5 bg-gradient-to-r from-[#D95D39] to-[#E76F51] hover:from-[#E76F51] hover:to-[#E9C46A] text-white font-mono font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 active:scale-95"
+                className="py-2.5 bg-gradient-to-r from-[#D95D39] to-[#E76F51] hover:from-[#E76F51] hover:to-[#E9C46A] text-white font-mono font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 active:scale-95 whitespace-nowrap"
               >
-                <span>PROJETS</span>
+                <span>VOIR LES PROJETS</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
               <button
@@ -928,7 +926,7 @@ export const KirikouWorld: React.FC = () => {
                 className="py-2.5 px-3 bg-[#FAF0CA] hover:bg-[#F4D35E] border border-[#E9C46A] text-[#8C4A28] font-mono font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5 active:scale-95 whitespace-nowrap"
               >
                 <Feather className="w-3.5 h-3.5 text-[#8C4A28]" />
-                <span>VISITE 60S</span>
+                <span>VISITE GUIDÉE</span>
               </button>
             </div>
           </div>
@@ -1040,7 +1038,7 @@ export const KirikouWorld: React.FC = () => {
               onClick={() => goToChapter(2)}
               className="w-full mt-3.5 py-2.5 px-4 bg-gradient-to-r from-[#D95D39] to-[#E76F51] hover:from-[#E76F51] hover:to-[#E9C46A] text-white font-mono font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 active:scale-95 whitespace-nowrap"
             >
-              <span>CONTINUER VERS LE GRAND BAOBAB</span>
+              <span>VOIR LES COMPÉTENCES TECHNIQUES</span>
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
@@ -1077,12 +1075,12 @@ export const KirikouWorld: React.FC = () => {
               <div>
                 <div className="relative inline-block mb-1">
                   <span className="font-script text-[22px] sm:text-[26px] md:text-[28px] font-bold text-[#D95D39] quill-reveal leading-none">
-                    ✦ Chapitre 3 · La Stack Technique
+                    ✦ Chapitre 3 · Compétences &amp; Technologies
                   </span>
                   <div className="h-0.5 w-full bg-[#E9C46A] quill-underline rounded-full mt-0.5" />
                 </div>
                 <h3 className="font-title text-xl sm:text-2xl md:text-[28px] font-bold leading-tight animate-titleBreathe">
-                  Compétences &amp; Outils Maîtrisés
+                  Stack Technique &amp; Outils Maîtrisés
                 </h3>
               </div>
               <Sparkles className="w-5 h-5 text-[#E9C46A]" />
@@ -1199,12 +1197,12 @@ export const KirikouWorld: React.FC = () => {
               <div>
                 <div className="relative inline-block mb-1">
                   <span className="font-script text-[22px] sm:text-[26px] md:text-[28px] font-bold text-[#D95D39] quill-reveal leading-none">
-                    ✦ Chapitre 4 · Échange &amp; Disponibilité
+                    ✦ Chapitre 4 · Contact &amp; Collaboration
                   </span>
                   <div className="h-0.5 w-full bg-[#E9C46A] quill-underline rounded-full mt-0.5" />
                 </div>
                 <h3 className="font-title text-xl sm:text-2xl md:text-[28px] font-bold leading-tight animate-titleBreathe">
-                  L’Arbre à Palabre · Contact
+                  Contact &amp; Échange Direct
                 </h3>
               </div>
               <Mail className="w-5 h-5 text-[#D95D39]" />
@@ -1270,14 +1268,14 @@ export const KirikouWorld: React.FC = () => {
                   className="w-full py-2.5 bg-gradient-to-r from-[#D95D39] to-[#E76F51] hover:from-[#E76F51] hover:to-[#E9C46A] text-white font-mono font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 active:scale-95"
                 >
                   <Send className="w-3.5 h-3.5" />
-                  <span>TRANSMETTRE LE MESSAGE</span>
+                  <span>ENVOYER LE MESSAGE</span>
                 </button>
               </form>
             )}
 
             {/* Direct Social Links */}
             <div className="mt-3.5 pt-3 border-t border-[#D95D39]/15 flex items-center justify-between text-xs font-mono">
-              <span className="text-[10px] opacity-70">RÉSEAUX DIRECTS :</span>
+              <span className="text-[10px] opacity-70">CANAUX DIRECTS :</span>
               <div className="flex gap-2">
                 {SOCIAL_LINKS.filter((l) => l.platform !== 'cv').slice(0, 3).map((link) => (
                   <a
@@ -1298,14 +1296,14 @@ export const KirikouWorld: React.FC = () => {
               </div>
             </div>
 
-            {/* Proceed to Epilogue & Celebration */}
+            {/* Proceed to Chapter 5 (Synthesis) */}
             <div className="mt-3 pt-2.5 border-t border-[#D95D39]/15">
               <button
                 type="button"
                 onClick={() => goToChapter(4)}
                 className="w-full py-2.5 px-4 bg-gradient-to-r from-[#2A9D8F] to-[#238276] hover:opacity-95 text-white font-mono font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5 active:scale-95 whitespace-nowrap"
               >
-                <span>VERS LA CONCLUSION &amp; PERSPECTIVES</span>
+                <span>VOIR LA SYNTHÈSE &amp; VISION</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -1345,12 +1343,12 @@ export const KirikouWorld: React.FC = () => {
               <div>
                 <div className="relative inline-block mb-1">
                   <span className="font-script text-[22px] sm:text-[26px] md:text-[28px] font-bold text-[#2A9D8F] quill-reveal leading-none">
-                    ✦ Chapitre 5 · Conclusion &amp; Perspectives
+                    ✦ Chapitre 5 · Synthèse &amp; Vision
                   </span>
                   <div className="h-0.5 w-full bg-[#E9C46A] quill-underline rounded-full mt-0.5" />
                 </div>
                 <h3 className="font-title text-xl sm:text-2xl md:text-[28px] font-bold leading-tight animate-titleBreathe flex items-center gap-1.5">
-                  <span>Perspectives &amp; Célébration</span>
+                  <span>Vision &amp; Engagement Professionnel</span>
                   <Sparkles className="w-5 h-5 text-[#E9C46A]" />
                 </h3>
               </div>
@@ -1362,7 +1360,7 @@ export const KirikouWorld: React.FC = () => {
             <div className="space-y-3 text-xs">
               <div className="p-3 bg-[#FAF7F2] rounded-2xl border border-[#D95D39]/15 text-[#3D2619] leading-relaxed">
                 <p className="font-medium">
-                  « Merci d’avoir partagé ce chemin à travers la savane. Chaque création est une rencontre : allier la rigueur d'ingénierie logicielle la plus exigeante à une identité visuelle soignée, intuitive et au service de vos utilisateurs. »
+                  « Chaque création est le fruit d’une exigence partagée : allier la rigueur d'ingénierie logicielle la plus haute à une identité visuelle soignée, intuitive et au service direct de vos utilisateurs. »
                 </p>
                 <div className="mt-2 font-mono font-bold text-[11px] text-[#D95D39]">
                   — JUNES AGASSOUNON, Développeur Web &amp; Graphiste
@@ -1399,7 +1397,7 @@ export const KirikouWorld: React.FC = () => {
                   className="w-full py-3 bg-gradient-to-r from-[#D95D39] via-[#E76F51] to-[#E9C46A] hover:opacity-95 text-white font-mono font-extrabold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 active:scale-95 whitespace-nowrap"
                 >
                   <Award className="w-4 h-4 text-[#FAF0CA]" />
-                  <span>GRAVER MON PASSEPORT DU VOYAGEUR</span>
+                  <span>ATTESTATION DE VISITE &amp; PASSEPORT</span>
                 </button>
 
                 <button
@@ -1408,7 +1406,7 @@ export const KirikouWorld: React.FC = () => {
                   className="w-full py-2.5 bg-gradient-to-r from-[#2A9D8F] to-[#238276] hover:opacity-95 text-white font-mono font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-95"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
-                  <span>RECOMMENCER LE VOYAGE (LE VILLAGE)</span>
+                  <span>REVENIR AU DÉBUT (PRÉSENTATION)</span>
                 </button>
 
                 <div className="grid grid-cols-2 gap-2">
