@@ -19,6 +19,7 @@ import {
   GraduationCap,
   Briefcase,
   CheckCircle2,
+  FolderOpen,
 } from 'lucide-react';
 
 interface KirikouDossierModalProps {
@@ -162,55 +163,67 @@ export const KirikouDossierModal: React.FC<KirikouDossierModalProps> = ({
 
           {/* TAB 2: PROJECTS */}
           {activeTab === 'projects' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-              {projects.map((proj) => (
-                <div
-                  key={proj.id}
-                  className="p-3.5 sm:p-5 bg-[#FAF7F2] border border-[#D95D39]/15 hover:border-[#D95D39]/50 rounded-2xl sm:rounded-3xl transition-all flex flex-col justify-between shadow-sm"
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-                      <span className="px-2 py-0.5 text-[9px] sm:text-[10px] font-mono uppercase bg-[#D95D39]/15 text-[#D95D39] rounded-full font-bold">
-                        {proj.category.replace('_', ' ')}
-                      </span>
-                      <span className="text-[11px] sm:text-xs font-mono text-[#7A583A]">{proj.year}</span>
-                    </div>
-                    <h3 className="text-sm sm:text-base font-bold text-[#2B201A] mb-1">{proj.title}</h3>
-                    <p className="text-xs text-[#4A2E1B] mb-2.5 sm:mb-3 font-medium">{proj.tagline}</p>
-                    <div className="flex flex-wrap gap-1 sm:gap-1.5 mb-3 sm:mb-4">
-                      {proj.technologies.slice(0, 4).map((t, idx) => (
-                        <span
-                          key={idx}
-                          className="px-2 py-0.5 text-[9px] sm:text-[10px] font-mono bg-[#E8D5B5]/60 text-[#2B201A] rounded-lg"
-                        >
-                          {t}
+            projects.length === 0 ? (
+              <div className="py-12 px-4 text-center border-2 border-dashed border-[#D95D39]/20 rounded-2xl bg-[#FAF7F2] flex flex-col items-center justify-center">
+                <FolderOpen className="w-10 h-10 mb-2.5 text-[#D95D39] opacity-70" />
+                <h4 className="font-extrabold text-sm sm:text-base text-[#2B201A] mb-1">
+                  Aucun projet publié
+                </h4>
+                <p className="text-xs text-[#7A583A] max-w-sm">
+                  Les projets enregistrés dans la base de données Firestore apparaîtront ici automatiquement en temps réel.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                {projects.map((proj) => (
+                  <div
+                    key={proj.id}
+                    className="p-3.5 sm:p-5 bg-[#FAF7F2] border border-[#D95D39]/15 hover:border-[#D95D39]/50 rounded-2xl sm:rounded-3xl transition-all flex flex-col justify-between shadow-sm"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+                        <span className="px-2 py-0.5 text-[9px] sm:text-[10px] font-mono uppercase bg-[#D95D39]/15 text-[#D95D39] rounded-full font-bold">
+                          {proj.category.replace('_', ' ')}
                         </span>
-                      ))}
+                        <span className="text-[11px] sm:text-xs font-mono text-[#7A583A]">{proj.year}</span>
+                      </div>
+                      <h3 className="text-sm sm:text-base font-bold text-[#2B201A] mb-1">{proj.title}</h3>
+                      <p className="text-xs text-[#4A2E1B] mb-2.5 sm:mb-3 font-medium">{proj.tagline}</p>
+                      <div className="flex flex-wrap gap-1 sm:gap-1.5 mb-3 sm:mb-4">
+                        {proj.technologies.slice(0, 4).map((t, idx) => (
+                          <span
+                            key={idx}
+                            className="px-2 py-0.5 text-[9px] sm:text-[10px] font-mono bg-[#E8D5B5]/60 text-[#2B201A] rounded-lg"
+                          >
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2.5 sm:pt-3 border-t border-[#D95D39]/15">
+                      <button
+                        onClick={() => onSelectProject(proj)}
+                        className="text-xs font-mono font-bold text-[#D95D39] hover:underline"
+                      >
+                        Ouvrir la fiche complète &rarr;
+                      </button>
+                      {proj.links[0] && (
+                        <a
+                          href={proj.links[0].url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-mono text-[#7A583A] hover:text-[#2B201A] flex items-center gap-1 font-medium"
+                        >
+                          <ExternalLink className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                          Démo
+                        </a>
+                      )}
                     </div>
                   </div>
-
-                  <div className="flex items-center justify-between pt-2.5 sm:pt-3 border-t border-[#D95D39]/15">
-                    <button
-                      onClick={() => onSelectProject(proj)}
-                      className="text-xs font-mono font-bold text-[#D95D39] hover:underline"
-                    >
-                      Ouvrir la fiche complète &rarr;
-                    </button>
-                    {proj.links[0] && (
-                      <a
-                        href={proj.links[0].url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs font-mono text-[#7A583A] hover:text-[#2B201A] flex items-center gap-1 font-medium"
-                      >
-                        <ExternalLink className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                        Démo
-                      </a>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )
           )}
 
           {/* TAB 3: SKILLS */}

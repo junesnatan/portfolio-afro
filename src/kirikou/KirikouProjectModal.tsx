@@ -1,12 +1,7 @@
 import React, { useEffect } from 'react';
 import { ProjectData } from '@/types';
 import { X, ExternalLink, Github, CheckCircle2, Layers } from 'lucide-react';
-import {
-  AgriPulseDemo,
-  LuminaLuxuryDemo,
-  KromaPatternDemo,
-  VelocityFleetDemo,
-} from './KirikouMiniDemos';
+
 
 interface KirikouProjectModalProps {
   project: ProjectData | null;
@@ -88,13 +83,24 @@ export const KirikouProjectModal: React.FC<KirikouProjectModalProps> = ({
           </p>
         </div>
 
-        {/* Live Interactive Playable Demo */}
-        <div className="mb-4 sm:mb-6">
-          {project.id === 'proj-1' && <AgriPulseDemo />}
-          {project.id === 'proj-2' && <LuminaLuxuryDemo />}
-          {project.id === 'proj-3' && <KromaPatternDemo />}
-          {project.id === 'proj-4' && <VelocityFleetDemo />}
-        </div>
+        {/* Project Visual / Gallery (if available) */}
+        {((project.galleryImages && project.galleryImages.length > 0) || (project.thumbnail && !project.thumbnail.includes('agripulse'))) && (
+          <div className="mb-4 sm:mb-6">
+            <h3 className="text-[11px] sm:text-xs font-mono uppercase tracking-wider text-[#7A583A] font-bold mb-2">
+              Visuels du Projet
+            </h3>
+            <div className="rounded-2xl overflow-hidden border border-[#D95D39]/20 bg-[#FAF7F2] max-h-64 flex items-center justify-center">
+              <img
+                src={project.galleryImages?.[0] || project.thumbnail}
+                alt={project.title}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLElement).style.display = 'none';
+                }}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Key Features */}
         <div className="mb-4 sm:mb-6">

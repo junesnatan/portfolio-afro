@@ -26,6 +26,7 @@ import { ProjectData } from '@/types';
 import { useAudioStore } from '@/stores/useAudioStore';
 import { useUIStore } from '@/stores/useUIStore';
 import { useDataStore } from '@/stores/useDataStore';
+import { FirebaseService } from '@/database/firebaseClient';
 import {
   Volume2,
   VolumeX,
@@ -48,6 +49,7 @@ import {
   Award,
   Home,
   FolderKanban,
+  FolderOpen,
   BookOpen,
   MessageSquare,
   Feather,
@@ -510,11 +512,15 @@ export const KirikouWorld: React.FC = () => {
     e.preventDefault();
     if (!contactName || !contactEmail || !contactMessage) return;
     playSuccess();
-    addAdminMessage({
+    const payload = {
       name: contactName,
       email: contactEmail,
       message: contactMessage,
       subject: 'Message reçu via L’Arbre à Palabre (Portfolio)',
+    };
+    addAdminMessage(payload);
+    FirebaseService.saveContactMessage(payload).catch((err) => {
+      console.warn('Erreur enregistrement message Firestore:', err);
     });
     setContactSent(true);
   };
@@ -973,46 +979,62 @@ export const KirikouWorld: React.FC = () => {
               </span>
             </div>
 
-            {/* Illustrated Project Cards Grid - 2 columns side by side */}
-            <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
-              {projects.map((proj) => (
-                <div
-                  key={proj.id}
-                  onClick={() => {
-                    playInteract();
-                    setSelectedProject(proj);
-                  }}
-                  className={`p-3 sm:p-3.5 border rounded-2xl cursor-pointer transition-all hover:scale-[1.02] shadow-sm flex flex-col justify-between ${
-                    atmosphere === 'night'
-                      ? 'bg-[#29263E] border-white/10 hover:border-[#E9C46A]'
-                      : 'bg-[#FAF7F2] border-[#D95D39]/20 hover:border-[#D95D39]'
-                  }`}
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-[9px] font-mono font-bold uppercase px-2 py-0.5 bg-[#D95D39]/15 text-[#D95D39] rounded-full">
-                        {proj.category.replace('_', ' ')}
-                      </span>
-                      <span className="text-[10px] font-mono opacity-70">{proj.year}</span>
+            {/* Illustrated Project Cards Grid - Direct Database Output */}
+            {projects.length === 0 ? (
+              <div className={`p-6 sm:p-8 text-center rounded-2xl border-2 border-dashed flex flex-col items-center justify-center my-2 ${
+                atmosphere === 'night'
+                  ? 'border-white/15 bg-white/5 text-white/80'
+                  : 'border-[#D95D39]/20 bg-[#FAF7F2] text-[#2B201A]'
+              }`}>
+                <FolderOpen className="w-10 h-10 mb-2.5 text-[#D95D39] opacity-70" />
+                <h4 className="font-extrabold text-sm sm:text-base mb-1">
+                  Aucun projet publié pour le moment
+                </h4>
+                <p className="text-[11px] sm:text-xs max-w-sm opacity-75 leading-relaxed">
+                  Cette section est directement connectée en temps réel à la base de données. Dès qu'un projet est ajouté, il apparaît immédiatement ici en direct.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+                {projects.map((proj) => (
+                  <div
+                    key={proj.id}
+                    onClick={() => {
+                      playInteract();
+                      setSelectedProject(proj);
+                    }}
+                    className={`p-3 sm:p-3.5 border rounded-2xl cursor-pointer transition-all hover:scale-[1.02] shadow-sm flex flex-col justify-between ${
+                      atmosphere === 'night'
+                        ? 'bg-[#29263E] border-white/10 hover:border-[#E9C46A]'
+                        : 'bg-[#FAF7F2] border-[#D95D39]/20 hover:border-[#D95D39]'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[9px] font-mono font-bold uppercase px-2 py-0.5 bg-[#D95D39]/15 text-[#D95D39] rounded-full">
+                          {proj.category.replace('_', ' ')}
+                        </span>
+                        <span className="text-[10px] font-mono opacity-70">{proj.year}</span>
+                      </div>
+                      <h4 className="font-extrabold text-xs sm:text-sm mb-1 leading-snug">
+                        {proj.title}
+                      </h4>
+                      <p className="text-[10px] sm:text-[11px] line-clamp-2 font-medium opacity-85">
+                        {proj.tagline}
+                      </p>
                     </div>
-                    <h4 className="font-extrabold text-xs sm:text-sm mb-1 leading-snug">
-                      {proj.title}
-                    </h4>
-                    <p className="text-[10px] sm:text-[11px] line-clamp-2 font-medium opacity-85">
-                      {proj.tagline}
-                    </p>
+                    <div className="flex items-center justify-between pt-2 mt-2 border-t border-[#D95D39]/15">
+                      <span className="text-[10px] font-mono font-bold text-[#D95D39] flex items-center gap-1">
+                        Détails du projet &rarr;
+                      </span>
+                      <span className="text-[10px] font-mono text-[#2A9D8F] font-bold">
+                        {proj.role.split(' ')[0]}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between pt-2 mt-2 border-t border-[#D95D39]/15">
-                    <span className="text-[10px] font-mono font-bold text-[#D95D39] flex items-center gap-1">
-                      Détails du projet &rarr;
-                    </span>
-                    <span className="text-[10px] font-mono text-[#2A9D8F] font-bold">
-                      {proj.role.split(' ')[0]}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
 
             <button
               onClick={() => goToChapter(2)}

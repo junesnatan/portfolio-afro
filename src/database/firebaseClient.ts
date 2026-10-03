@@ -15,7 +15,6 @@ import {
 } from 'firebase/firestore';
 import { getAnalytics, isSupported, Analytics } from 'firebase/analytics';
 import { ProjectData } from '@/types';
-import { PROJECTS_DATA } from './data';
 
 // ==========================================
 // FIREBASE CONFIGURATION (PROSPECTION-A1082)
@@ -67,11 +66,11 @@ export { app, db, analytics };
 // ==========================================
 export const FirebaseService = {
   /**
-   * Fetch all projects from Firestore (with fallback to data.ts)
+   * Fetch all projects from Firestore (pure database query, zero fake data)
    */
   async getProjects(): Promise<ProjectData[]> {
     if (!db || !isFirebaseConfigured()) {
-      return PROJECTS_DATA;
+      return [];
     }
 
     try {
@@ -80,7 +79,7 @@ export const FirebaseService = {
       const snapshot = await getDocs(q);
 
       if (snapshot.empty) {
-        return PROJECTS_DATA;
+        return [];
       }
 
       const list: ProjectData[] = [];
@@ -89,8 +88,8 @@ export const FirebaseService = {
       });
       return list;
     } catch (err) {
-      console.warn('Error fetching projects from Firebase, fallback to local:', err);
-      return PROJECTS_DATA;
+      console.warn('Error fetching projects from Firebase:', err);
+      return [];
     }
   },
 
@@ -134,10 +133,11 @@ export const FirebaseService = {
   },
 
   /**
-   * Real-time listener for projects changes
+   * Real-time listener for projects changes (updates visitor view directly)
    */
   subscribeToProjects(onUpdate: (projects: ProjectData[]) => void): () => void {
     if (!db || !isFirebaseConfigured()) {
+      onUpdate([]);
       return () => {};
     }
 
@@ -147,20 +147,22 @@ export const FirebaseService = {
       return onSnapshot(
         q,
         (snapshot) => {
+          const list: ProjectData[] = [];
           if (!snapshot.empty) {
-            const list: ProjectData[] = [];
             snapshot.forEach((docSnap) => {
               list.push(docSnap.data() as ProjectData);
             });
-            onUpdate(list);
           }
+          onUpdate(list);
         },
         (error) => {
           console.warn('Firestore subscription error:', error);
+          onUpdate([]);
         }
       );
     } catch (err) {
       console.warn('Could not setup Firestore subscription:', err);
+      onUpdate([]);
       return () => {};
     }
   },
@@ -189,31 +191,6 @@ export const FirebaseService = {
     } catch (err) {
       console.error('Failed to save contact message to Firebase:', err);
       return false;
-    }
-  },
-
-  /**
-   * Seed / Initialise Firestore with default projects from data.ts
-   */
-  async seedDefaultProjects(): Promise<{ success: boolean; count: number }> {
-    if (!db || !isFirebaseConfigured()) {
-      return { success: false, count: 0 };
-    }
-
-    try {
-      let count = 0;
-      for (const proj of PROJECTS_DATA) {
-        const projectRef = doc(db, 'projects', proj.id);
-        await setDoc(projectRef, {
-          ...proj,
-          updatedAt: serverTimestamp(),
-        });
-        count++;
-      }
-      return { success: true, count };
-    } catch (err) {
-      console.error('Error seeding projects to Firebase:', err);
-      return { success: false, count: 0 };
     }
   },
 };

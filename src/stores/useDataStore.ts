@@ -1,22 +1,30 @@
 import { create } from 'zustand';
 import { ProjectData, SkillData } from '@/types';
-import { PROJECTS_DATA, SKILLS_DATA } from '@/database/data';
+import { SKILLS_DATA } from '@/database/data';
 import { FirebaseService, isFirebaseConfigured } from '@/database/firebaseClient';
 
-const STORAGE_PROJECTS_KEY = 'ja_portfolio_projects_v2';
+const STORAGE_PROJECTS_KEY = 'ja_portfolio_projects_live_v1';
 const STORAGE_SKILLS_KEY = 'ja_portfolio_skills_v2';
+
+// Purge any previous test/mock cache
+if (typeof window !== 'undefined') {
+  try {
+    localStorage.removeItem('ja_portfolio_projects_v2');
+    localStorage.removeItem('ja_portfolio_projects');
+  } catch (e) {}
+}
 
 function loadProjectsFromStorage(): ProjectData[] {
   try {
     const raw = localStorage.getItem(STORAGE_PROJECTS_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed)) return parsed;
     }
   } catch (e) {
     console.error('Failed to parse projects from storage', e);
   }
-  return PROJECTS_DATA;
+  return [];
 }
 
 function loadSkillsFromStorage(): SkillData[] {
@@ -149,7 +157,7 @@ export const useDataStore = create<DataStore>((set, get) => ({
     } catch (e) {
       console.error(e);
     }
-    set({ projects: PROJECTS_DATA, skills: SKILLS_DATA });
+    set({ projects: [], skills: SKILLS_DATA });
   },
 
   importAllData: (data) => {
@@ -171,26 +179,32 @@ export const useDataStore = create<DataStore>((set, get) => ({
   },
 
   initCloudSync: () => {
-    if (!isFirebaseConfigured()) return;
+    if (!isFirebaseConfigured()) {
+      set({ projects: [] });
+      return;
+    }
     set({ isCloudConnected: true });
 
-    // Initial load from Firestore
+    // Initial load from Firestore (direct database communication)
     FirebaseService.getProjects().then((cloudProjects) => {
-      if (cloudProjects && cloudProjects.length > 0) {
-        try {
-          localStorage.setItem(STORAGE_PROJECTS_KEY, JSON.stringify(cloudProjects));
-        } catch (e) {
-          console.error(e);
-        }
-        set({ projects: cloudProjects });
+      const list = cloudProjects || [];
+      try {
+        localStorage.setItem(STORAGE_PROJECTS_KEY, JSON.stringify(list));
+      } catch (e) {
+        console.error(e);
       }
+      set({ projects: list });
     });
 
-    // Real-time listener
+    // Real-time listener: visitor view instantly updates when projects are added/edited/deleted in Firestore
     FirebaseService.subscribeToProjects((cloudProjects) => {
-      if (cloudProjects && cloudProjects.length > 0) {
-        set({ projects: cloudProjects });
+      const list = cloudProjects || [];
+      try {
+        localStorage.setItem(STORAGE_PROJECTS_KEY, JSON.stringify(list));
+      } catch (e) {
+        console.error(e);
       }
+      set({ projects: list });
     });
   },
 }));

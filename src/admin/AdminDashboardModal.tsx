@@ -198,13 +198,13 @@ export const AdminDashboardModal: React.FC = () => {
     handleAutoExtract(quickExtractText);
   };
 
-  const handleSeedFirebase = async () => {
+  const handleSyncFirebase = async () => {
     playInteract();
-    const res = await FirebaseService.seedDefaultProjects();
-    if (res.success) {
+    try {
+      const cloudProjects = await FirebaseService.getProjects();
       playSuccess();
-      showNotification('FIREBASE SYNCHRONISÉ', `${res.count} projets ont été synchronisés dans Firestore.`);
-    } else {
+      showNotification('FIREBASE SYNCHRONISÉ', `${cloudProjects.length} projet(s) en direct dans Firestore.`);
+    } catch {
       showNotification('ERREUR FIREBASE', 'Vérifiez la configuration des variables dans .env');
     }
   };
@@ -1105,11 +1105,11 @@ export const AdminDashboardModal: React.FC = () => {
                     </p>
                     {isFirebaseConfigured() && (
                       <button
-                        onClick={handleSeedFirebase}
+                        onClick={handleSyncFirebase}
                         className="px-4 py-2 bg-gradient-to-r from-[#D95D39] to-[#E76F51] hover:from-[#E76F51] hover:to-[#E9C46A] text-white font-mono font-bold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-1.5"
                       >
-                        <Upload className="w-3.5 h-3.5" />
-                        <span>INITIALISER / POUSSER LES PROJETS VERS FIRESTORE</span>
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        <span>SYNCHRONISER AVEC FIRESTORE</span>
                       </button>
                     )}
                   </div>

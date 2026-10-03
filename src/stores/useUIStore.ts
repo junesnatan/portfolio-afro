@@ -84,26 +84,7 @@ export const useUIStore = create<UIStore>((set) => ({
   isAdminOpen: false,
   openAdminModal: () => set({ isAdminOpen: true }),
   closeAdminModal: () => set({ isAdminOpen: false }),
-  adminMessages: [
-    {
-      id: '1',
-      name: 'Claire V.',
-      email: 'claire.v@studio-artefact.fr',
-      subject: 'Opportunité Lead Creative Tech',
-      message: 'Bonjour Junes, votre portfolio est exceptionnel. Nous recherchons un profil hybride Full-Stack & Creative Developer pour piloter nos nouvelles expériences web.',
-      date: 'Aujourd\'hui 14:20',
-      read: false,
-    },
-    {
-      id: '2',
-      name: 'Thomas Morel',
-      email: 't.morel@agritech-ventures.com',
-      subject: 'Collaboration SaaS IoT Agri-Pulse',
-      message: 'Nous serions très intéressés pour collaborer sur une architecture similaire à Agri-Pulse pour la télémétrie de nos capteurs connectés en Afrique de l\'Ouest.',
-      date: 'Hier 18:45',
-      read: true,
-    },
-  ],
+  adminMessages: [],
   addAdminMessage: (msg) =>
     set((state) => ({
       adminMessages: [

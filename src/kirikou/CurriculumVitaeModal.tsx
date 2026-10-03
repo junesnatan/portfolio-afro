@@ -342,31 +342,37 @@ export const CurriculumVitaeModal: React.FC<CurriculumVitaeModalProps> = ({
                   </div>
 
                   <div className="space-y-3">
-                    {projects.slice(0, 3).map((proj) => (
-                      <div
-                        key={proj.id}
-                        className="p-3 rounded-xl bg-[#FAF7F2] border border-[#D95D39]/15 text-xs"
-                      >
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="font-extrabold text-[#1C120C] text-[12px]">
-                            {proj.title}
-                          </span>
-                          <span className="text-[9px] font-mono uppercase px-1.5 py-0.2 bg-[#2A9D8F]/15 text-[#2A9D8F] font-bold rounded">
-                            {proj.category.replace('_', ' ')}
-                          </span>
-                        </div>
-                        <p className="text-[10.5px] text-[#4A2E1B] mb-1.5 leading-tight">
-                          {proj.tagline}
-                        </p>
-                        <div className="flex flex-wrap gap-1 text-[9px] font-mono text-[#7A583A]">
-                          {proj.technologies.slice(0, 5).map((t, idx) => (
-                            <span key={idx} className="px-1.5 py-0.5 bg-white rounded border border-[#D95D39]/10">
-                              {t}
+                    {projects.length === 0 ? (
+                      <p className="text-[11px] text-[#7A583A] italic p-3 rounded-xl bg-[#FAF7F2] border border-dashed border-[#D95D39]/20">
+                        Aucun projet publié dans la base de données pour le moment.
+                      </p>
+                    ) : (
+                      projects.slice(0, 3).map((proj) => (
+                        <div
+                          key={proj.id}
+                          className="p-3 rounded-xl bg-[#FAF7F2] border border-[#D95D39]/15 text-xs"
+                        >
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="font-extrabold text-[#1C120C] text-[12px]">
+                              {proj.title}
                             </span>
-                          ))}
+                            <span className="text-[9px] font-mono uppercase px-1.5 py-0.2 bg-[#2A9D8F]/15 text-[#2A9D8F] font-bold rounded">
+                              {proj.category.replace('_', ' ')}
+                            </span>
+                          </div>
+                          <p className="text-[10.5px] text-[#4A2E1B] mb-1.5 leading-tight">
+                            {proj.tagline}
+                          </p>
+                          <div className="flex flex-wrap gap-1 text-[9px] font-mono text-[#7A583A]">
+                            {proj.technologies.slice(0, 5).map((t, idx) => (
+                              <span key={idx} className="px-1.5 py-0.5 bg-white rounded border border-[#D95D39]/10">
+                                {t}
+                              </span>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </div>
               </div>

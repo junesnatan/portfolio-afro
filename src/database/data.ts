@@ -4,8 +4,6 @@ import {
   ExperienceData,
   EducationData,
   ServiceData,
-  MissionData,
-  CollectibleData,
   SocialLink,
 } from '@/types';
 
@@ -27,139 +25,8 @@ export const IDENTITY_DATA = {
   ],
 };
 
-export const PROJECTS_DATA: ProjectData[] = [
-  {
-    id: 'agri-pulse',
-    slug: 'agri-pulse-saas',
-    title: 'AGRI-PULSE PLATFORM',
-    tagline: 'SaaS d\'analyse agronomique par capteurs IoT et imagerie satellite en temps réel',
-    category: 'fullstack',
-    role: 'Lead Architect & Full-Stack Engineer',
-    year: '2024',
-    featured: true,
-    description: 'Plateforme complète d\'optimisation des rendements agricoles combinant streaming de télémétrie IoT, cartographie géospatiale dynamique (WebGIS), calcul prédictif météo et tableau de bord de pilotage agronomique.',
-    features: [
-      'Ingestion de données de capteurs en temps réel via WebSockets & TimescaleDB',
-      'Cartographie interactive haute précision avec couches thermiques NDVI',
-      'Alertes automatisées par SMS/Push sur les risques de gel ou de sécheresse',
-      'Exportation automatisée de rapports d\'audit agronomique certifiés PDF',
-    ],
-    technologies: ['TypeScript', 'React', 'Node.js', 'PostgreSQL', 'TimescaleDB', 'Three.js / WebGL', 'Docker', 'AWS'],
-    metrics: [
-      { label: 'Surface surveillée', value: '+45 000 ha' },
-      { label: 'Temps de réponse API', value: '< 45ms' },
-      { label: 'Économie d\'eau constatée', value: '-22%' },
-    ],
-    links: [
-      { label: 'Live Demo', url: 'https://github.com', type: 'live' },
-      { label: 'GitHub Repository', url: 'https://github.com', type: 'github' },
-    ],
-    thumbnail: '/assets/projects/agripulse.webp',
-    galleryImages: [],
-    zonePlacement: {
-      zone: 'projectdistrict',
-      position: [-10, 0, -42],
-    },
-  },
-  {
-    id: 'lumina-luxury',
-    slug: 'lumina-luxury-ecommerce',
-    title: 'LUMINA LUXURY ATELIER',
-    tagline: 'Expérience e-commerce 3D haut de gamme avec configurateur temps réel WebGL',
-    category: 'creative_dev',
-    role: 'Creative Developer & UI/UX Designer',
-    year: '2024',
-    featured: true,
-    description: 'Boutique en ligne immersive pour haute horlogerie et maroquinerie de prestige. Permet la personnalisation complète en 3D temps réel (textures KTX2, gravure laser dynamique, matériaux PBR sur-mesure) avec intégration fluide Stripe & Shopify Storefront API.',
-    features: [
-      'Configurateur 3D temps réel avec matériaux PBR et reflets d\'environnement HDR',
-      'Optimisation meshopt / Draco assurant un premier affichage sous 1.2 seconde',
-      'Micro-interactions GSAP et transitions de page fluides sans rechargement',
-      'Checkout sécurisé Stripe avec validation instantanée des stocks',
-    ],
-    technologies: ['React', 'Three.js', 'React Three Fiber', 'GLSL Shaders', 'Shopify Storefront', 'TailwindCSS', 'GSAP'],
-    metrics: [
-      { label: 'Taux de conversion', value: '+38%' },
-      { label: 'FPS moyen Desktop/Mobile', value: '60 / 60' },
-      { label: 'Poids du modèle 3D optimisé', value: '1.4 Mo' },
-    ],
-    links: [
-      { label: 'Live Experience', url: 'https://github.com', type: 'live' },
-      { label: 'Source Code', url: 'https://github.com', type: 'github' },
-    ],
-    thumbnail: '/assets/projects/lumina.webp',
-    galleryImages: [],
-    zonePlacement: {
-      zone: 'projectdistrict',
-      position: [0, 0, -48],
-    },
-  },
-  {
-    id: 'velocity-fleet',
-    slug: 'velocity-fleet-os',
-    title: 'VELOCITY MOBILITY OS',
-    tagline: 'Centrale de supervision et régulation de flottes de transport urbain autonome',
-    category: 'fullstack',
-    role: 'Full-Stack Developer & Data Visualizer',
-    year: '2023',
-    featured: true,
-    description: 'Interface de contrôle mission critique pour opérateurs de véhicules de transport urbain. Affichage en 3D volumétrique des corridors de transit, télémétrie batterie, calcul d\'itinéraires multi-agents et gestion des incidents en direct.',
-    features: [
-      'Rendu de 5000+ véhicules simultanés via GPU Instancing',
-      'Moteur d\'optimisation de dispatching algorithmique en Rust/WASM',
-      'Système d\'authentification multi-niveaux et journalisation d\'audit inviolable',
-      'Tableau de bord modulaire personnalisable en drag-and-drop',
-    ],
-    technologies: ['TypeScript', 'Next.js', 'Go', 'WebSockets', 'Three.js', 'Redis', 'Kubernetes'],
-    metrics: [
-      { label: 'Flotte gérée', value: '5 200 unités' },
-      { label: 'Disponibilité système', value: '99.99%' },
-      { label: 'Latence télémétrie', value: '18ms' },
-    ],
-    links: [
-      { label: 'Case Study', url: 'https://github.com', type: 'case_study' },
-      { label: 'Code Review', url: 'https://github.com', type: 'github' },
-    ],
-    thumbnail: '/assets/projects/velocity.webp',
-    galleryImages: [],
-    zonePlacement: {
-      zone: 'projectdistrict',
-      position: [10, 0, -42],
-    },
-  },
-  {
-    id: 'kroma-identity',
-    slug: 'kroma-brand-identity',
-    title: 'KROMA DESIGN IDENTITY',
-    tagline: 'Système d\'identité visuelle complète, typographie générative et charte de marque',
-    category: 'graphic_design',
-    role: 'Art Director & Brand Designer',
-    year: '2024',
-    featured: true,
-    description: 'Conception de la direction artistique globale pour un studio de production audio-visuelle : logotype dynamique génératif, système graphique vectoriel de 400+ composants, affiches sérigraphiques et déclinaisons motion design.',
-    features: [
-      'Système de logo modulaire s\'adaptant aux variations de fréquences sonores',
-      'Typographie sur-mesure à contraste élevé avec jeu complet de glyphes',
-      'Charte graphique print & digital complète (guidelines, papeterie, signalétique)',
-      'Animations de marque en vectoriel Lottie pour intégration web fluide',
-    ],
-    technologies: ['Illustrator', 'Photoshop', 'InDesign', 'After Effects', 'Blender', 'Cinema 4D'],
-    metrics: [
-      { label: 'Composants graphiques', value: '450+' },
-      { label: 'Distinctions design', value: 'Design Award 2024' },
-      { label: 'Portée de la campagne', value: '+1.2M vues' },
-    ],
-    links: [
-      { label: 'Consulter la Charte', url: 'https://github.com', type: 'case_study' },
-    ],
-    thumbnail: '/assets/projects/kroma.webp',
-    galleryImages: [],
-    zonePlacement: {
-      zone: 'creativestudio',
-      position: [25, 0, -10],
-    },
-  },
-];
+export const PROJECTS_DATA: ProjectData[] = [];
+
 
 export const SKILLS_DATA: SkillData[] = [
   // Frontend & Web
@@ -277,102 +144,6 @@ export const SERVICES_DATA: ServiceData[] = [
   },
 ];
 
-export const MISSIONS_DATA: MissionData[] = [
-  {
-    id: 'm-1',
-    title: 'INITIALISATION DU MONDE',
-    description: 'Découvrez vos contrôles et faites vos premiers pas dans le Spawn Nexus.',
-    zone: 'spawn',
-    status: 'active',
-    rewardText: 'Accès débloqué aux zones périphériques',
-    order: 1,
-  },
-  {
-    id: 'm-2',
-    title: 'DÉCOUVRIR LE DÉVELOPPEUR',
-    description: 'Rendez-vous dans l\'Identity Core pour consulter la biographie et vision de Junes.',
-    zone: 'identity',
-    status: 'locked',
-    rewardText: 'Archive biographique débloquée',
-    order: 2,
-  },
-  {
-    id: 'm-3',
-    title: 'EXPLORER LE DEV LAB',
-    description: 'Inspectez les serveurs technologiques et le tableau des compétences Full-Stack.',
-    zone: 'devlab',
-    status: 'locked',
-    rewardText: 'Matrice des compétences 100% analysée',
-    order: 3,
-  },
-  {
-    id: 'm-4',
-    title: 'VISITER LA GALERIE DESIGN',
-    description: 'Consultez les créations graphiques dans le Creative Studio.',
-    zone: 'creativestudio',
-    status: 'locked',
-    rewardText: 'Galerie d\'art graphique déverrouillée',
-    order: 4,
-  },
-  {
-    id: 'm-5',
-    title: 'INSPECTER UN PROJET DÉPLOYÉ',
-    description: 'Interagissez avec l\'un des terminaux 3D du Project District.',
-    zone: 'projectdistrict',
-    status: 'locked',
-    rewardText: 'Fiche technique de projet ouverte',
-    order: 5,
-  },
-  {
-    id: 'm-6',
-    title: 'ÉTABLIR LA TRANSMISSION',
-    description: 'Activez la Tour de Contact pour transmettre un message ou télécharger le CV.',
-    zone: 'contact',
-    status: 'locked',
-    rewardText: 'Canaux de transmission directe ouverts',
-    order: 6,
-  },
-];
-
-export const COLLECTIBLES_DATA: CollectibleData[] = [
-  {
-    id: 'col-ts',
-    name: 'Fragment de Code : Strict Mode',
-    type: 'code_fragment',
-    description: 'Un éclat d\'or numérique contenant l\'essence de TypeScript sans aucun "any".',
-    secretFact: 'Junes AGASSOUNON configure tous ses projets en strict: true pour éliminer les bugs de runtime avant la production.',
-    position: [0, 1.2, -15],
-    collected: false,
-  },
-  {
-    id: 'col-palette',
-    name: 'Prisme Chromatique',
-    type: 'design_swatch',
-    description: 'Un cristal réfractant la lumière turquoise et dorée du studio.',
-    secretFact: 'Le contraste des couleurs respecte scrupuleusement la norme WCAG AAA pour une lisibilité parfaite.',
-    position: [18, 1.2, -8],
-    collected: false,
-  },
-  {
-    id: 'col-shader',
-    name: 'Noyau Holographique',
-    type: 'easter_egg',
-    description: 'Un algorithme d\'ondes sinusoïdales oscillant en temps réel.',
-    secretFact: 'Les shaders personnalisés de ce portfolio calculent les déformations directement sur la carte graphique (GPU).',
-    position: [-18, 1.2, -8],
-    collected: false,
-  },
-  {
-    id: 'col-coffee',
-    name: 'Tasse Cyber-Caféine',
-    type: 'lore_entry',
-    description: 'Le carburant indispensable des sessions de Creative Coding nocturnes.',
-    secretFact: 'Plus de 10 000 lignes de code ont été rédigées avec précision pour forger ce monde virtuel.',
-    position: [0, 1.2, -38],
-    collected: false,
-  },
-];
-
 export const SOCIAL_LINKS: SocialLink[] = [
   {
     id: 'email',
@@ -392,14 +163,14 @@ export const SOCIAL_LINKS: SocialLink[] = [
     id: 'github',
     platform: 'github',
     label: 'GitHub',
-    url: 'https://github.com/junes-agassounon',
+    url: 'https://github.com/junesnatan',
     icon: 'Github',
   },
   {
     id: 'whatsapp',
     platform: 'whatsapp',
     label: 'WhatsApp Direct',
-    url: 'https://wa.me/33600000000',
+    url: 'https://wa.me/2290151456803',
     icon: 'MessageCircle',
   },
   {
